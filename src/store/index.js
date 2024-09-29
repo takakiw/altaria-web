@@ -13,7 +13,7 @@ export const useUserStore = defineStore('user', () => {
     })
 
     const isLogin = computed(() => {
-        return user.id!== 0;
+        return user.id > 0
     })
 
     const resetUser = () => {
@@ -29,5 +29,18 @@ export const useUserStore = defineStore('user', () => {
         user.avatar = avatar
     }
 
-    return {user, isLogin, resetUser, setAvatar}
+    const setUserInfo = (data) => {
+        user.id = data.id
+        user.nickName = data.nickName
+        user.userName = data.userName
+        user.email = data.email
+        user.role = data.role
+        user.avatar = data.avatar
+    }
+
+    const getRoleName = computed(() => {
+        return user.role === 1? '管理员' : '普通用户'
+    })
+
+    return {user, isLogin,setUserInfo, resetUser, setAvatar, getRoleName}
 })

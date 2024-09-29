@@ -15,7 +15,12 @@
                 <router-link to="#" class="menu-item">工具</router-link>
             </div>
             <div class="search">
-                <input type="text" placeholder="Search">
+                <el-input
+                    v-model="searchText"
+                    style="width: 240px"
+                    placeholder="search..."
+                    :prefix-icon="Search"
+                    />
             </div>
         </div>
         <div class="avatar">
@@ -27,6 +32,8 @@
 
 <script setup>
 import Avatar from './Avatar.vue';
+import { defineProps, ref } from 'vue';
+import { Search } from '@element-plus/icons-vue';
 
 
 const props = defineProps({
@@ -35,6 +42,8 @@ const props = defineProps({
         default: 90
     }
 })
+
+const searchText = ref('');
 
 </script>
 
@@ -93,6 +102,7 @@ $nav-height: 60px;
 
 .search{
     margin-left: 40px;
+    margin-top: 5px;
     input{
         padding: 5px;
         border-radius: 25px;

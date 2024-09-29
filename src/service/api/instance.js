@@ -2,6 +2,9 @@ import axios from 'axios'
 import router from '../../router'
 import JSONBIG from 'json-bigint'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '../../store'
+
+const userStore = useUserStore()
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI,
@@ -32,6 +35,13 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
   (response) => {
+    if (response.data.code === 2010){
+      localStorage.removeItem('token')
+      userStore.resetUser()
+    }
+
+    const jwt = response.config.headers.Authorization
+    localStorage.setItem("token",jwt.substring(7))
     return response
   },
   (error) => {
@@ -45,8 +55,6 @@ instance.interceptors.response.use(
     if (error.response.status === 403) {
       Message.error('无操作权限')
     }
-    console.log("error.response.data");
-    
     return Promise.reject(error)
   }
 )

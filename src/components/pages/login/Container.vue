@@ -34,12 +34,6 @@ import { onMounted, ref } from "vue"
 
 const isLogin = ref(false)
 
-const open = () => {
-  ElMessage({
-    message: 'Congrats, this is a success message.',
-    type: 'success',
-  })
-}
 /* const isPdf = () => {
   console.log(/Chrome|Firefox|Safari|Edge/.test(navigator.userAgent));
   

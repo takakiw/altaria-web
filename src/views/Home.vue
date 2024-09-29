@@ -12,18 +12,20 @@ import Container from '@/components/common/Container.vue'
 import Navigation from '../components/common/Navigation.vue';
 import { getUserInfo } from '../service/user';
 import { onMounted } from 'vue';
-import { el } from 'element-plus/es/locales.mjs';
-import { ElMessage } from 'element-plus';
+import { useUserStore } from '../store';
+
+const userStore = useUserStore();
 
 onMounted(() => {
-  getUserInfo(1).then(res => {
-    if (res.code === 200) {
-      console.log(res.data);
-    }
-    else{
-      ElMessage.error(res);
-    }
-  });
+  if (localStorage.getItem('token')){
+      getUserInfo(-1).then(res => {
+      if (res.code!== 200) {
+        return;
+      }
+      userStore.setUserInfo(res.data);
+    })
+  }
+  
 })
 
 </script>
@@ -33,7 +35,5 @@ onMounted(() => {
 </style>
 
 <style>
-.el-divider--horizontal{
-margin-top: 0;;
-}
+
 </style>
