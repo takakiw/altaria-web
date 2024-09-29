@@ -5,8 +5,8 @@
             <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
                 <el-tab-pane label="密码登录" name="password">
                     <div class="content">
-                        <el-input v-model="input" style="width: 200px" placeholder="账号" />
-                        <el-input v-model="inputPassword" style="width: 200px" type="password" placeholder="密码" show-password/>
+                        <el-input @keydown.enter="nextInput('pwd')" v-model="userName" style="width: 200px" placeholder="账号" autocomplete="off"/>
+                        <el-input id="pwd" @keydown.enter="loginPassWord" v-model="password" style="width: 200px" type="password" placeholder="密码" autocomplete="off" show-password/>
                         <el-button type="primary" style="width: 200px" @click="loginPassWord">登 录</el-button>
                     </div>
                 </el-tab-pane>
@@ -14,7 +14,7 @@
                     <div class="content">
                         <el-input v-model="email" style="width: 200px" placeholder="邮箱" />
                         <div style="display: flex;justify-content: space-between;width: 200px;">
-                            <el-input v-model="code" style="width: 100px" placeholder="验证码" />
+                            <el-input @keydown.enter="loginEmail" v-model="code" style="width: 100px" placeholder="验证码" />
                             <el-button type="primary" style="width: 80px" :disabled="!codeFlag" @click="sendCode">{{codeFlag? "发送验证码": timeOut}}</el-button>
                         </div>
                         <el-button type="primary" style="width: 200px" @click="loginEmail">登 录</el-button>
@@ -28,27 +28,35 @@
 <script setup>
 
 import { ref } from 'vue'
-import { getCode } from '../../../service/user';
+import { getCode, postLoginByEmail, postLoginByPassword } from '../../../service/user';
 import { ElMessage } from "element-plus";
+import { useRouter } from 'vue-router';
 
 const activeName = ref('password')
 
-const input = ref('')
-const inputPassword = ref('')
+const userName = ref('')
+const password = ref('')
 const email = ref('')
 const code = ref('')
 const codeFlag = ref(true)
 const timeOut = ref(60)
 
+const router = useRouter()
+
+
 const handleClick = (tab, event) => {
-  input.value = ''
-  inputPassword.value = ''
+  userName.value = ''
+  password.value = ''
   email.value = ''
   code.value = ''
   }
 
   const checkEmail = (email) => {
     return /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/.test(email)
+  }
+
+  const nextInput = (idName) => {
+    document.getElementById(idName).focus()
   }
 
   const sendCode = () => {
@@ -61,7 +69,7 @@ const handleClick = (tab, event) => {
         return
     }
     getCode(email.value).then(res => {
-        if(res.code){
+        if(res.code === 200){
             ElMessage.success('验证码发送成功')
             codeFlag.value = false
 
@@ -76,22 +84,59 @@ const handleClick = (tab, event) => {
             }, 60000)
         }
         else{
-            ElMessage.error('验证码发送失败')
+            ElMessage.error(res.msg)
         }
-    }).catch(err => {
-        ElMessage.error('验证码发送失败')
     })
   }
 
+  const CheckField = (value, msg) => {
+    if(!value){
+        ElMessage.error(msg)
+        return true
+    }
+    return false
+  }
+
   const loginPassWord = () => {
-    if(!input.value){
-        ElMessage.error('账号不能为空')
+    if(CheckField(userName.value, '账号不能为空')){
         return
     }
-    if(!inputPassword.value){
-        ElMessage.error('密码不能为空')
+    if(CheckField(password.value, '密码不能为空')){
         return
     }
+    postLoginByPassword(userName.value, password.value).then((res) => {
+        if(res.code === 200){
+            ElMessage.success('登录成功')
+            localStorage.setItem('token', res.data)
+            router.push('/')
+        }
+        else{
+            ElMessage.error(res.msg)
+        }
+    })
+  }
+
+  const loginEmail = () => {
+    if(CheckField(email.value, '邮箱不能为空')){
+        return
+    }
+    if(CheckField(code.value, '验证码不能为空')){
+        return
+    }
+    if(!checkEmail(email.value)){
+        ElMessage.error('邮箱格式不正确')
+        return
+    }
+    postLoginByEmail(email.value, code.value).then((res) => {
+        if(res.code === 200){
+            ElMessage.success('登录成功')
+            localStorage.setItem('token', res.data)
+            router.push('/')
+        }
+        else{
+            ElMessage.error(res.msg)
+        }
+    })
   }
 </script>
 
