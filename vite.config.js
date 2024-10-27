@@ -22,12 +22,17 @@ export default defineConfig({
     port: 9000,
     host: '0.0.0.0',
     open: true,
-    /* proxy: {
+    proxy: {
       '/api/v1': {
-        target: 'http://localhost:10086',
+        target: 'http://localhost:8082',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api\/v1/, '')
+      },
+      "/preview/avatar":{
+        target: "http://192.168.96.132:9000/avatar",
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/preview\/avatar/, '')
       }
-    } */
+    }
   }
 })

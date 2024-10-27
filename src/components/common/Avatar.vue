@@ -2,22 +2,28 @@
     <div class="avatar">
         <div class="avatar-name avatar-item">
             <div @click="toLogin" v-if="!userStore.isLogin">登录</div>
-            <div v-else>{{userStore.user.userName}}</div>
+            <div v-else>{{userStore.user.nickName}}</div>
         </div>
         <div class="avatar-icon avatar-item">
-<!--             <el-avatar v-if="!userStore.isLogin" :icon="UserFilled"/>
- -->            <el-popover
+            <el-avatar v-if="!userStore.isLogin" :icon="UserFilled"/>
+            <el-popover
+                v-else
                 placement="bottom-start"
                 :width="250"
                 trigger="click"
             >
                 <template #reference>
                     <el-avatar v-if="!userStore.isLogin" :icon="UserFilled"/>
+                    <div v-else>
+                        <el-avatar
+                            :src=userStore.avatarURL
+                        />
+                    </div>
                 </template>
                 <div class="avatar-info">
                     <div class="container-box">
                         <el-avatar v-if="!userStore.isLogin" :icon="UserFilled"/>
-                        <div><span>用户名:</span> {{userStore.user.userName}}</div>
+                        <span>用户名:</span> {{userStore.user.userName}}
                     </div>
                     <div class="container-box">
                        <span>昵称: </span>{{ userStore.user.nickName }}
@@ -30,30 +36,52 @@
                     </div>
                     <el-divider />
                     <div class="container-box" style="justify-content: space-around; margin-bottom: 0;">
-                        <div style="font-weight: bold;width: 40%; text-align: center;">设置</div>
+                        <div class="info-btn" @click="showSetup">设置</div>
                         <el-divider direction="vertical" />
-                        <div style="font-weight: bold; width: 40%;text-align: center;">退出登录</div>
+                        <div class="info-btn" @click="logout">退出登录</div>
                     </div>
                 </div>
             </el-popover>
-            
         </div>
     </div>
+   
+        <UpSetDialog 
+            :centerDialogVisible="centerDialogVisible" 
+            :title="'设置'"
+            @update:centerDialogVisible="closeDialog"/>
 </template>
 
 <script setup>
 import { UserFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store';
 import { useRoute, useRouter } from 'vue-router';
+import { ref } from 'vue';
+import UpSetDialog from './UpSetDialog.vue';
 
 const userStore = useUserStore()
 
 const route = useRoute()
 const router = useRouter()
 
+const centerDialogVisible = ref(false)
+
 const toLogin = () => {
     router.push('/login')
 }
+
+const logout = () => {
+    localStorage.removeItem('token')
+    userStore.resetUser()
+}
+
+const showSetup = () => {
+    centerDialogVisible.value = true
+}
+
+const closeDialog = (flag) => {
+    centerDialogVisible.value = flag
+}
+
 
 
 </script>
@@ -69,6 +97,7 @@ const toLogin = () => {
 .avatar-item{
     padding: 10px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .avatar-info{
@@ -80,8 +109,7 @@ const toLogin = () => {
     gap: 5px;
 }
 .avatar-info .container-box{
-    border: 1px solid #dfdcdc;
-    border-radius: 4px;
+    border-radius: 10px;
     display: flex;
     gap: 10px;
     align-items: center;
@@ -89,13 +117,34 @@ const toLogin = () => {
     padding: 10px;
     & span{ 
         font-weight: bold;
+        width: 50px;
+        text-align: right;
     }
 }
+
+
+
+.info-btn{
+    font-weight: bold;width: 40%; 
+    text-align: center;
+    cursor: pointer;
+}
+
+
+
+</style>
+
+<style>
 
 .el-divider--horizontal{
     margin-top: 5px;
     margin-bottom: 0;
     width: 100%;
+}
+
+.el-popper.el-popper.is-light, .el-popper.is-light>.el-popper__arrow:before{
+    background-color: #fcfdff;
+    border-radius: 10px;
 }
 
 </style>

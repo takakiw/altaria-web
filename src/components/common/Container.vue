@@ -11,14 +11,10 @@
 <style lang="scss" scoped>
 
 #container {
-    widows: 80%;
+    width: 80%;
     margin: 0 auto;
-    max-width: 1200px;
     min-width: 800px;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    height: calc(100vh - 85px)
 }
-
-
 </style>

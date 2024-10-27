@@ -20,14 +20,23 @@ export function postRegister(userName, password, email, code) {
     return post("/user/login/register", { userName, password, email, code });
 }
 
+// 获取用户信息
 export function getUserInfo(id) {
-    return get("/user/user/"+String(id));
+    return get("/user/info/"+String(id));
 }
 
-export function putUpdateUserInfo(id, data) {
-    return put("/user/user/"+String(id), data);
+export function getCodeByEmail(email) {
+    return get("/user/code", { email });
 }
 
-export function putUpdateUserPassword(id, oldPassword, newPassword) {
-    return put("/user/password/"+String(id), { oldPassword, newPassword });
+// 更新用户信息
+export function putUpdateUserInfo(data) {
+    return put("/user/update", data);
+}
+
+// 上传头像
+export function postUploadAvatar(file) {
+    const formData = new FormData();
+    formData.append("file", file)
+    return post("/user/uploadAvatar", formData);
 }

@@ -3,9 +3,15 @@ import { computed, reactive, ref } from 'vue'
 
 
 export const useUserStore = defineStore('user', () => {
+
+    const roleList = reactive([
+        { id: 0, name: '普通用户' },
+        { id: 1, name: '管理员' }
+    ])
+
     const user = reactive({
-        "id": 0,
-        "nickName": '',
+        "id": 1,
+        "nickName": 'test user',
         "userName": '',
         "avatar": '',
         "email": '',
@@ -14,6 +20,13 @@ export const useUserStore = defineStore('user', () => {
 
     const isLogin = computed(() => {
         return user.id > 0
+    })
+
+    const avatarURL = computed(() => {
+        if (!user.avatar) {
+            return ''
+        }
+        return "http://localhost:9000" + "/preview/avatar/" + user.avatar
     })
 
     const resetUser = () => {
@@ -42,5 +55,5 @@ export const useUserStore = defineStore('user', () => {
         return user.role === 1? '管理员' : '普通用户'
     })
 
-    return {user, isLogin,setUserInfo, resetUser, setAvatar, getRoleName}
+    return {user, isLogin,setUserInfo,avatarURL, resetUser, setAvatar, getRoleName, roleList}
 })

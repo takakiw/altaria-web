@@ -31,6 +31,7 @@ import { ref } from 'vue'
 import { getCode, postLoginByEmail, postLoginByPassword } from '../../../service/user';
 import { ElMessage } from "element-plus";
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../../../store';
 
 const activeName = ref('password')
 
@@ -42,6 +43,8 @@ const codeFlag = ref(true)
 const timeOut = ref(60)
 
 const router = useRouter()
+
+const userStore = useUserStore()
 
 
 const handleClick = (tab, event) => {
@@ -107,7 +110,8 @@ const handleClick = (tab, event) => {
     postLoginByPassword(userName.value, password.value).then((res) => {
         if(res.code === 200){
             ElMessage.success('登录成功')
-            localStorage.setItem('token', res.data)
+            localStorage.setItem('token', res.data.token)
+            userStore.user.id = res.data.id
             router.push('/')
         }
         else{
@@ -130,7 +134,8 @@ const handleClick = (tab, event) => {
     postLoginByEmail(email.value, code.value).then((res) => {
         if(res.code === 200){
             ElMessage.success('登录成功')
-            localStorage.setItem('token', res.data)
+            localStorage.setItem('token', res.data.token)
+            userStore.user.id = res.data.id
             router.push('/')
         }
         else{

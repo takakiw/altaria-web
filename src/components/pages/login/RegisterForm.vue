@@ -18,7 +18,10 @@
 import { ref } from 'vue'
 import { getCode, postRegister } from '../../../service/user';
 import { ElMessage } from 'element-plus';
+import router from '../../../router';
+import { useUserStore } from '../../../store';
 
+const userStore = useUserStore()
 const userName = ref('')
 const password = ref('')
 const email = ref('')
@@ -86,8 +89,10 @@ const register = () => {
     postRegister(userName.value, password.value, email.value, code.value).then(res => {
         if(res.code === 200){
             ElMessage.success('注册成功')
+            localStorage.setItem('token', res.data.token)
+            userStore.user.id = res.data.id
             setTimeout(() => {
-                console.log("跳转到登录页面");
+                router.push("/")
             }, 1000)
         }
         else{
