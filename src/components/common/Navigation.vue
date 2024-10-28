@@ -73,14 +73,10 @@
 
 <script setup>
 import Avatar from './Avatar.vue';
-import { computed, defineProps, ref, watch } from 'vue';
+import {  defineProps, ref } from 'vue';
 import { Search, UploadFilled } from '@element-plus/icons-vue';
-import {  getUserInfo } from '@/service/user';
 import { onMounted } from 'vue';
 import { useUserStore } from '@/store';
-import router from '../../router';
-import { ElMessage } from 'element-plus';
-import axios from 'axios';
 
 const userStore = useUserStore();
 
@@ -88,15 +84,6 @@ const uploadList = ref([]);
 
 onMounted(() => {  
     console.log('onMounted to Navigation.vue');
-    
-  if (localStorage.getItem('token')){
-      getUserInfo(-1).then(res => {
-      if (res.code!== 200) {
-        return;
-      }
-      userStore.setUserInfo(res.data);
-    })
-  }
 })
 
 const add = (file) => {

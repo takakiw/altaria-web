@@ -10,8 +10,8 @@ export const useUserStore = defineStore('user', () => {
     ])
 
     const user = reactive({
-        "id": 1,
-        "nickName": 'test user',
+        "id": 0,
+        "nickName": '未登录',
         "userName": '',
         "avatar": '',
         "email": '',

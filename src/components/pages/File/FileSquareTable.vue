@@ -14,7 +14,7 @@
           <div class="file-operation-list" v-if="operationValue">
             <div v-if="props.file.type != 0" class="operation-item" @click="downloadFile">下载</div>
             <div class="operation-item" @click="deleteFile">删除</div>
-            <div class="operation-item" @click="renameFile">重命名</div>
+            <div class="operation-item" @click="isShowRename = true">重命名</div>
             <div class="operation-item" @click="moveFile">移动</div>
             <div class="operation-item" @click="shareFile">分享</div>
           </div>
@@ -23,24 +23,40 @@
     </div>
     <div class="file-info" @click="cdOrPreview">
       <div class="image">
-        <el-tooltip placement="bottom" :offset="-10" :show-after="600" >
-          <template #content> {{ file.type }}<br>{{ file.size }}<br>{{ file.createTime }} </template>
-          <img :src="props.file?.cover ? props?.file.cover : imageURL" alt="" style="width: 72px; height: 72px;">
+        <el-tooltip placement="top" :offset="-20" :show-after="600" >
+          <template #content> type: {{ IconImageEnm[props.file.type] }}<br> size: {{ sizeToStandard(props.file.size) }}<br>{{ dateToString(props.file.createTime) }}</template>
+          <img :src="props.file?.cover ? getPreviewCover(props.file.id) : imageURL" alt="" style="width: 72px; height: 72px;">
         </el-tooltip>
       </div>
       <div class="file-name">
-        <span>{{ props.file.name }}</span>
+        <span >{{ props.file.fileName }}</span>
+        <el-dialog v-model="isShowRename" title="重命名" 
+          :v-model="isShowRename"
+          :center="true"
+          :show-close="false"
+          :width="`200px`">
+          <div class="rename">
+            <img :src="props.file?.cover && props.file.type != 0? props?.file.cover : imageURL" alt="" style="width: 72px; height: 72px;">
+            <el-input v-model="newFileName" placeholder="请输入新的文件名" style="width: 300px;"></el-input>
+            <div class="rename-btn">
+              <el-button type="primary" @click="renameFile">确定</el-button>
+              <el-button type="default" @click="isShowRename = false">取消</el-button>
+            </div>
+          </div>
+        </el-dialog>
       </div>
       <div class="date">
-        <span>{{ props.file.createTime }}</span>
+        <span>{{ dateToString(props.file.updateTime) }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import IconImageEnum, {getIconImage} from '../../../enums/IconImageEnum';
+import { dateTimeToStandard, sizeToStandard } from '../../../utils/StandardData';
+import { getPreviewCover } from '../../../service/file';
 const props = defineProps({
     file: {
         type: Object,
@@ -60,8 +76,40 @@ const props = defineProps({
     }
 })
 
+
+/* file: {
+    "id": "1848366429078368256",
+    "uid": 1,
+    "url": null,
+    "fileName": "层级6(ES)",
+    "type": 0,
+    "size": 1000,
+    "pid": 0,
+    "cover": null,
+    "transformed": 0,
+    "createTime": "2024-10-21T22:11:12",
+    "updateTime": "2024-10-22T17:05:09"
+} */
+
+
+const isShowRename = ref(false) // 是否显示重命名输入框
+const newFileName = ref(props.file.name) // 重命名文件名
+
+watch(newFileName, (newVal) => {
+  console.log(newVal);
+})
+
 const IconImageEnm = IconImageEnum;
-const imageURL = ref(getIconImage(IconImageEnm[props.file.type]))
+const imageURL = computed(() => {
+  return getIconImage(IconImageEnm[props.file.type])
+})
+
+const dateToString = (date) => {
+  return dateTimeToStandard(date)
+}
+
+
+
 const isShow = ref(false) // 是否显示操作按钮
 
 watch(() => props.checked, (newVal) => {
@@ -83,7 +131,14 @@ const logCheckValues = (e) => {
  }
  
  const cdOrPreview = () => {
-   console.log("cdOrPreview");
+  if(isShowRename.value){
+    return
+  }
+   if(props.file.type == 0){ // 文件夹
+    emit("cdDir")
+   }else{ // 文件
+    console.log("预览文件");
+   }
  }
 
  const operationValue = ref(false) // 操作按钮显示隐藏
@@ -103,21 +158,29 @@ const logCheckValues = (e) => {
     emit("updateData")
   }
   const renameFile = () => {
-    // todo rename
+    // todo rename 通过接口重命名文件
     console.log("renameFile");
-    
+    console.log("新文件名: " + newFileName.value);
+    isShowRename.value = false
+    // if(res.code == 200) 刷新数据  emit("updateData")
+    // else 显示错误信息, 什么都不做
+    newFileName.value = props.file.name
+    // 并通知父组件刷新数据
+    emit("updateData")
   }
 
   const moveFile = () => {
-    // todo move
+    // todo move 通过接口移动文件
     console.log("moveFile");
+    // 并通知父组件刷新数据
+    emit("updateData")
   }
   const shareFile = () => {
-    // todo copy
-    console.log("copyFile");
+    // todo share 通过接口分享文件
+    console.log("shareFile");
   }
 
-const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData"])
+const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData", "cdDir"])
 </script>
 
 <style lang="scss" scoped>
@@ -223,4 +286,19 @@ const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData"])
 .file-item:hover{
   background-color: #f5f5f5;
 }
+
+.rename{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  .rename-btn{
+    display: flex;
+    justify-content: center;
+    width: 80%;
+    gap: 50px;
+    margin-top: 10px;
+  }
+}
+
 </style>

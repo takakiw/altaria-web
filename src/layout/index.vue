@@ -7,13 +7,26 @@
 
 <script setup>
 import Navigation from '@/components/common/Navigation.vue';
-import { ref } from 'vue';
-
+import { onMounted, ref } from 'vue';
+import { getUserInfo } from '../service/user';
+import { useUserStore } from '../store';
+const userStore = useUserStore();
 const ncomponent = ref(null);
 
 const add = (file) => {
     ncomponent.value.add(file);
 }
+
+onMounted(() => {
+    if (localStorage.getItem('token')){
+      getUserInfo(-1).then(res => {
+      if (res.code!== 200) {
+        return;
+      }
+      userStore.setUserInfo(res.data);
+    })
+  }
+});
 
 </script>
 

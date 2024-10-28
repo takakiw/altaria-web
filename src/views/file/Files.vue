@@ -37,9 +37,9 @@
       </div>
       <div class="left-bottom">
           <div style="width: 100%; padding: 10px;">
-            <el-progress :percentage="50" />
+            <el-progress :percentage="percentage" />
           </div>
-          <span style="width: 100%;">100MB/200MB</span>
+          <span style="width: 100%;">{{sizeToStandard(useSpace)}}/{{ sizeToStandard(totalSpace) }}</span>
       </div>
      </div>
      <div class="right-container">
@@ -47,10 +47,10 @@
         <div class="controls">
           <div class="buttons">
             <el-button plain :disabled="false" type="primary" round @click="addFile">上传</el-button>
-            <el-button plain :disabled="menuIndex != 1" type="success" round>新建文件夹</el-button>
-            <el-button plain :disabled="fileItemRef?.activeFiles.length == 0" type="info" round>分享</el-button>
-            <el-button plain :disabled="fileItemRef?.activeFiles.length == 0" type="warning" round>移入回收站</el-button>
-            <el-button plain :disabled="fileItemRef?.activeFiles.length == 0" type="danger" round>删除</el-button>
+            <el-button plain :disabled="menuIndex != 1" type="success" round @click="addFolder">新建文件夹</el-button>
+            <el-button plain @click="shareFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="info" round>分享</el-button>
+            <el-button plain @click="recycleFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="warning" round>移入回收站</el-button>
+            <el-button plain @click="RemoveFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="danger" round>删除</el-button>
           </div>
           <div class="search">
                 <el-input
@@ -62,7 +62,7 @@
         <div class="file-path">
           <div v-if="menuIndex == 1 && pathList.length != 0" class="file-path">
             <div v-for="(item, index) in pathList" :key="index">
-              <div class="path-item" @click="getFileByPath(index)"> >{{item}}</div>
+              <div class="path-item" @click="getFileByPath(index)"> >{{item.fileName}}</div>
             </div>
           </div>
           <span v-else>全部文件</span>
@@ -80,9 +80,30 @@
         @update:fileChecked="updateFileChecked"
         @activeAll="activeAll"
         @cancelAll="cancelAll"
-        @removeFile="removeFile"/>
+        @updateData="updateData"
+        @cdDir="cdDir"/>
       </div>
      </div>
+     <el-dialog
+        v-model="addFolderShow"
+        title="新建文件夹"
+        width="200"
+        :show-close="false"
+        :center="true"
+      >
+        <template #footer>
+          <div class="create-folder">
+            <img :src="getIconImage(IconImageEnum[0])" alt="" style="width: 72px; height: 72px;"/>
+            <el-input v-model="folderName" placeholder="请输入文件夹名称" style="width: 60%;"></el-input>
+            <div class="create-folder-btn">
+              <el-button type="primary"  @click="createFolder">确定</el-button>
+              <el-button type="default"  @click="addFolderShow = false">取消</el-button>
+            </div>
+          </div>
+        </template>
+      </el-dialog>
+
+     
   </Container>
 </template>
 
@@ -98,29 +119,125 @@ import {
   Headset,
   Document,
   Search,
+  RemoveFilled,
 } from '@element-plus/icons-vue'
 
-import { reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
+import IconImageEnum, { getIconImage } from '../../enums/IconImageEnum';
+import { useUserStore } from '../../store';
+import { getFileList, getFilePath } from '../../service/file';
+import { ElMessage } from 'element-plus';
+import { getSpaceInfo } from '../../service/space';
+import { sizeToStandard } from '../../utils/StandardData';
 
+const userStore = useUserStore()
 const menuIndex = ref(1)
 const searchText = ref('')
+const fileItemRef = ref(null) // 用于获取选中的文件
+const pathList = reactive([])
+const files = reactive([])
+
+const addFolderShow = ref(false)
+
+const addFolder = () => {
+  console.log("新建文件夹");
+  addFolderShow.value = true
+  console.log(addFolderShow.value);
+}
+
+const useSpace = ref(0)
+const totalSpace = ref(0)
+const percentage = ref(0)
+
+getSpaceInfo().then(res => {
+  if(res.code == 200){
+    useSpace.value = res.data.useSpace
+    totalSpace.value = res.data.totalSpace
+    percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
+  }else{
+    ElMessage.error(res.msg)
+  }
+}).catch(err => {
+  console.log(err);
+})
 
 const handleSelect = (index) => {
   menuIndex.value = index
-  console.log(menuIndex.value);
+  files.splice(0)
+  // 获取文件列表
+  //1 所有 2 图片 3 视频 4 音频 5 文档 6 回收站
+  if(index == 1){
+    const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "00"
+    console.log("pathId", pathId);
+    getFileList(pathId, undefined, undefined, undefined).then(res => {
+      if(res.code == 200){
+        files.splice(0)
+        res.data.records.forEach(item => {
+          files.push({ ...item})
+        })
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      console.log(err)
+      ElMessage.error('获取文件列表失败')
+    })
+  }else{
+    getFileList(undefined, index - 1, undefined, undefined).then(res => {
+      if(res.code == 200){
+        files.splice(0)
+        res.data.records.forEach(item => {
+          files.push({ ...item})
+        })
+      }else{
+        ElMessage.error(res.message)
+      }
+    }).catch(err => {
+      console.log(err)
+      ElMessage.error('获取文件列表失败')
+    })
+  }
 }
 
-const fileItemRef = ref(null) // 用于获取选中的文件
-const pathList = reactive(["全部文件", "我的文档", "我的图片", "我的视频", "我的音乐"])
-const files = reactive([])
-for (let i = 0; i < 100; i++) {
-  files.push({
-      name: `文件${i}` + `.${Math.random(100000000000000000000000)}` + `.txt`,
-      size: `${Math.floor(Math.random() * 10000) / 100}KB`,
-      type: i % 9,
-      checked: false,
-      createTime: '2022/01/01 12:00:00',
-      cover: i %10 == 0 ? "https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" : undefined,
+
+const folderName = ref('')
+const createFolder = () => {
+  console.log(folderName.value);
+  addFolderShow.value = false
+}
+
+  if(localStorage.getItem('token')){
+  // 获取pathList的最后一项
+  const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "0"
+  console.log(pathId);
+  console.log(pathList);
+  
+  
+  getFilePath(pathId).then(res => {
+    console.log(res);
+    if(res.code == 200){
+      pathList.splice(pathList.length - 1, 1)
+      pathList.push(...res.data)
+      // 获取文件列表
+      getFileList(pathId, undefined, undefined, undefined).then(res => {
+        if(res.code == 200){
+          files.splice(0)
+          res.data.records.forEach(item => {
+            files.push({ ...item})
+          })
+        }else{
+          ElMessage.error(res.msg)
+        }
+      }).catch(err => {
+        console.log(err)
+        ElMessage.error('获取文件列表失败')
+      })
+    }else{
+      ElMessage.error(res.message)
+    }
+  }).catch(err => {
+    console.log(err)
+    ElMessage.error('获取文件路径失败')
   })
 }
 
@@ -128,6 +245,21 @@ for (let i = 0; i < 100; i++) {
 const getFileByPath = (index) => {
   console.log(index);
   console.log(pathList[index]);
+}
+
+const shareFile = () => {
+  console.log("分享文件");
+  console.log(fileItemRef.value.activeFiles);
+  
+}
+const recycleFile = () => {
+  console.log("移入回收站");
+  console.log(fileItemRef.value.activeFiles);
+}
+
+const RemoveFile = () => {
+  console.log("删除文件");
+  console.log(fileItemRef.value.activeFiles);
 }
 
 const emit = defineEmits(['add'])
@@ -153,8 +285,16 @@ const cancelAll = () => {
   }
 }
 
-const removeFile = (index) => {
-  files.splice(index, 1)
+const updateData = () => {
+  // todo 刷新数据
+  console.log("刷新数据");
+  // 更改files,使子组件重新渲染
+  files.splice(0, files.length)
+  
+}
+
+const cdDir = (e) => {
+  console.log(e);
 }
 
 </script>
@@ -259,6 +399,8 @@ const removeFile = (index) => {
     width: calc(100% - 10px);
     height: 30px;
     gap: 10px;
+    // 文字高度
+    line-height: 30px;
   }
   .path-item{
     color: #409eff;
@@ -267,18 +409,24 @@ const removeFile = (index) => {
   }
 }
 
-
-
-
 .right-content{
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
   height: 90%;
 }
 
+.create-folder{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  .create-folder-btn{
+    display: flex;
+    gap: 40px;
+  }
+  }
 </style>
 
 <style>

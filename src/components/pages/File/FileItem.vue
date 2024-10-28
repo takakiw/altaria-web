@@ -13,6 +13,7 @@
               @addActiveFile="addActiveFile(index)" 
               @removeActiveFile="removeActiveFile(index)"
               @updateData="updateData"
+              @cdDir="cdDir(index)"
               >
             </FileSquareTable>
           </div>
@@ -30,6 +31,7 @@ const props = defineProps({
     required: true
   }
 })
+
 
 const activeFiles = ref([])
 const checkAll = ref(false)
@@ -69,9 +71,19 @@ const checkChange = (e) => {
 
 const updateData = () => {
   emit("updateData")
+  activeFiles.value = props.files.filter(file => file.checked)
+  checkAll.value = false
+  console.log(activeFiles.value, checkAll);
+  
 }
 
-const emit = defineEmits(['update:fileChecked', "activeAll", "cancelAll", "updateData"])
+const cdDir = (index) => {
+  console.log(props.files[index]);
+  
+  emit("cdDir", props.files[index].name)
+}
+
+const emit = defineEmits(['update:fileChecked', "activeAll", "cancelAll", "updateData", "cdDir"])
 </script>
 
 <style lang="scss" scoped>
