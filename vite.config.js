@@ -32,6 +32,11 @@ export default defineConfig({
         target: "http://192.168.96.132:9000/avatar",
         changeOrigin: true,
         rewrite: path => path.replace(/^\/preview\/avatar/, '')
+      },
+      "/minio":{
+        target: "http://192.168.96.132:9000",
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/minio/, '')
       }
     }
   }

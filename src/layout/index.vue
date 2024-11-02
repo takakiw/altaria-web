@@ -18,6 +18,7 @@ const add = (file) => {
 }
 
 onMounted(() => {
+  console.log('onMounted Layout');
     if (localStorage.getItem('token')){
       getUserInfo(-1).then(res => {
       if (res.code!== 200) {

@@ -1,7 +1,6 @@
 import axios from 'axios'
 import router from '../../router'
 import JSONBIG from 'json-bigint'
-import { ElMessage } from 'element-plus'
 import { useUserStore } from '../../store'
 
 const userStore = useUserStore()
@@ -41,7 +40,6 @@ instance.interceptors.response.use(
     }
 
     const jwt = response.config.headers.Authorization
-    localStorage.setItem("token",jwt.substring(7))
     return response
   },
   (error) => {
@@ -50,7 +48,7 @@ instance.interceptors.response.use(
     }
     if (error.response.status === 401) {
       Message.error('请先登录账号')
-      router.push('/login')
+      router.replace('/login')
     }
     if (error.response.status === 403) {
       Message.error('无操作权限')

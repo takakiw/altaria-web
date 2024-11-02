@@ -1,5 +1,5 @@
 <template>
-  <Container style="margin-top: 10px;">
+  <Container style="margin-top: 5px;">
     <!-- <el-empty description="description" /> -->
      <div class="left-container">
       <div class="left-top">
@@ -46,11 +46,13 @@
       <div class="right-top">
         <div class="controls">
           <div class="buttons">
-            <el-button plain :disabled="false" type="primary" round @click="addFile">上传</el-button>
-            <el-button plain :disabled="menuIndex != 1" type="success" round @click="addFolder">新建文件夹</el-button>
-            <el-button plain @click="shareFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="info" round>分享</el-button>
-            <el-button plain @click="recycleFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="warning" round>移入回收站</el-button>
-            <el-button plain @click="RemoveFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="danger" round>删除</el-button>
+            <el-button plain v-if="menuIndex == 1" type="primary" round @click="addFile">上传</el-button>
+            <el-button plain v-if="menuIndex == 1" type="success" round @click="addFolder">新建文件夹</el-button>
+            <el-button plain v-if="menuIndex != 6" @click="moveFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="warning" round>移动</el-button>
+            <el-button plain v-if="menuIndex != 6" @click="shareFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="info" round>分享</el-button>
+            <el-button plain v-if="menuIndex != 6" @click="deleteFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="danger" round>移入回收站</el-button>
+            <el-button plain v-if="menuIndex == 6" @click="RemoveFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0" type="danger" round>删除</el-button>
+            <el-button plain v-if="menuIndex == 6" type="primary" round @click="recoveryFile" :disabled="fileItemRef == null || fileItemRef?.activeFiles?.length == 0">还原</el-button>
           </div>
           <div class="search">
                 <el-input
@@ -70,18 +72,22 @@
       </div>
       <el-divider></el-divider>
       <div class="right-content">
-        <div v-if="files.length === 0">
+        <div v-if="getFileLength != 0">
+           <FileItem ref="fileItemRef" 
+            :files="files"
+            :selectValue="selectValue"
+            @update:fileChecked="updateFileChecked"
+            @activeAll="activeAll"
+            @cancelAll="cancelAll"
+            @updateData="updateData"
+            @cdDir="cdDir"
+            @updateSelectValue="updateSelectValue"
+            @moveFile="moveFile"/>
+        </div>
+        <div v-else>
           <el-empty description="暂无文件">
-
           </el-empty>
         </div>
-        <FileItem v-else ref="fileItemRef" 
-        :files="files"
-        @update:fileChecked="updateFileChecked"
-        @activeAll="activeAll"
-        @cancelAll="cancelAll"
-        @updateData="updateData"
-        @cdDir="cdDir"/>
       </div>
      </div>
      <el-dialog
@@ -122,32 +128,99 @@ import {
   RemoveFilled,
 } from '@element-plus/icons-vue'
 
-import { onMounted, reactive, ref } from 'vue';
-import IconImageEnum, { getIconImage } from '../../enums/IconImageEnum';
-import { useUserStore } from '../../store';
-import { getFileList, getFilePath } from '../../service/file';
+import { computed, reactive, ref } from 'vue';
+import { delFile, getFileList, getFilePath, postCreateFolder, putRestoreFile, removeFile } from '../../service/file';
 import { ElMessage } from 'element-plus';
 import { getSpaceInfo } from '../../service/space';
 import { sizeToStandard } from '../../utils/StandardData';
+import { useRoute, useRouter } from 'vue-router';
+import IconImageEnum, {getIconImage} from '../../enums/IconImageEnum';
 
-const userStore = useUserStore()
+
+const router = useRouter()
+const route = useRoute()
+// 给当前网站添加后缀 localhost:8080/file/files -> localhost:8080/file/files?path=00
+
+
 const menuIndex = ref(1)
 const searchText = ref('')
 const fileItemRef = ref(null) // 用于获取选中的文件
 const pathList = reactive([])
+if(route.query.path){
+  pathList.push({
+    id : route.query.path,
+    fileName : "全部文件"
+  })
+}
 const files = reactive([])
 
-const addFolderShow = ref(false)
+const getFileLength = computed(() => {
+  return files.length
+})
 
+const addFolderShow = ref(false)
+const folderName = ref('')
+const createFolder = () => {
+  postCreateFolder(pathList[pathList.length - 1].id, folderName.value).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件夹创建成功')
+      handleSelect(menuIndex.value)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件夹创建失败')
+    console.log(err)
+  })
+  addFolderShow.value = false
+}
 const addFolder = () => {
   console.log("新建文件夹");
   addFolderShow.value = true
   console.log(addFolderShow.value);
 }
+const selectValue = ref("0")
+const thisUpdateFileList = (id, type, fileName, order) =>{
+  order = selectValue.value
+  getFileList(id, type, fileName, order).then(res => {
+      if(res.code == 200){
+        files.splice(0, files.length)
+        res.data.records.forEach(item => {
+          files.push({...item, checked: false})
+        })
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      ElMessage.error('获取文件列表失败')
+      console.log(err)
+    })
+}
+
 
 const useSpace = ref(0)
 const totalSpace = ref(0)
 const percentage = ref(0)
+
+if(localStorage.getItem('token')){
+  // 获取pathList的最后一项
+  const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "0"
+  getFilePath(pathId).then(res => {
+    console.log(res);
+    if(res.code == 200){
+      pathList.splice(pathList.length - 1, 1)
+      pathList.push(...res.data)
+      // 获取文件列表
+      thisUpdateFileList(pathId, undefined, undefined, undefined)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    console.log(err)
+  })
+}
+
+
 
 getSpaceInfo().then(res => {
   if(res.code == 200){
@@ -167,84 +240,24 @@ const handleSelect = (index) => {
   // 获取文件列表
   //1 所有 2 图片 3 视频 4 音频 5 文档 6 回收站
   if(index == 1){
-    const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "00"
-    console.log("pathId", pathId);
-    getFileList(pathId, undefined, undefined, undefined).then(res => {
-      if(res.code == 200){
-        files.splice(0)
-        res.data.records.forEach(item => {
-          files.push({ ...item})
-        })
-      }else{
-        ElMessage.error(res.msg)
-      }
-    }).catch(err => {
-      console.log(err)
-      ElMessage.error('获取文件列表失败')
-    })
+    const pathId = route.query.path ? route.query.path : "0"
+    thisUpdateFileList(pathId, undefined, undefined, undefined)
   }else{
-    getFileList(undefined, index - 1, undefined, undefined).then(res => {
-      if(res.code == 200){
-        files.splice(0)
-        res.data.records.forEach(item => {
-          files.push({ ...item})
-        })
-      }else{
-        ElMessage.error(res.message)
-      }
-    }).catch(err => {
-      console.log(err)
-      ElMessage.error('获取文件列表失败')
-    })
+    thisUpdateFileList(undefined, index - 1, undefined, undefined)
   }
 }
 
-
-const folderName = ref('')
-const createFolder = () => {
-  console.log(folderName.value);
-  addFolderShow.value = false
-}
-
-  if(localStorage.getItem('token')){
-  // 获取pathList的最后一项
-  const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "0"
-  console.log(pathId);
-  console.log(pathList);
-  
-  
-  getFilePath(pathId).then(res => {
-    console.log(res);
-    if(res.code == 200){
-      pathList.splice(pathList.length - 1, 1)
-      pathList.push(...res.data)
-      // 获取文件列表
-      getFileList(pathId, undefined, undefined, undefined).then(res => {
-        if(res.code == 200){
-          files.splice(0)
-          res.data.records.forEach(item => {
-            files.push({ ...item})
-          })
-        }else{
-          ElMessage.error(res.msg)
-        }
-      }).catch(err => {
-        console.log(err)
-        ElMessage.error('获取文件列表失败')
-      })
-    }else{
-      ElMessage.error(res.message)
-    }
-  }).catch(err => {
-    console.log(err)
-    ElMessage.error('获取文件路径失败')
-  })
-}
-
-
 const getFileByPath = (index) => {
-  console.log(index);
-  console.log(pathList[index]);
+  if(index == pathList.length - 1) return
+  const lastPath = pathList[index]
+  pathList.splice(index + 1, pathList.length - index - 1)
+  router.replace({
+    path: '/files',
+    query: {
+      path: lastPath.id
+    }
+  })
+  thisUpdateFileList(lastPath.id, undefined, undefined, undefined)
 }
 
 const shareFile = () => {
@@ -252,14 +265,51 @@ const shareFile = () => {
   console.log(fileItemRef.value.activeFiles);
   
 }
-const recycleFile = () => {
-  console.log("移入回收站");
-  console.log(fileItemRef.value.activeFiles);
+const deleteFile = () => {
+  const ids = fileItemRef.value.activeFiles.map(item => item.id);
+  delFile(ids).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件已移入回收站')
+      handleSelect(menuIndex.value)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件移入回收站失败')
+    console.log(err)
+  })
 }
 
+const recoveryFile = () => {
+  const ids = fileItemRef.value.activeFiles.map(item => item.id);
+  putRestoreFile(ids).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件已还原')
+      handleSelect(menuIndex.value)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件还原失败')
+    console.log(err)
+  })
+}
+
+
+
 const RemoveFile = () => {
-  console.log("删除文件");
-  console.log(fileItemRef.value.activeFiles);
+  const ids = fileItemRef.value.activeFiles.map(item => item.id);
+  removeFile(ids).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件已删除')
+      handleSelect(menuIndex.value)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件删除失败')
+    console.log(err)
+  })
 }
 
 const emit = defineEmits(['add'])
@@ -286,15 +336,40 @@ const cancelAll = () => {
 }
 
 const updateData = () => {
-  // todo 刷新数据
-  console.log("刷新数据");
-  // 更改files,使子组件重新渲染
-  files.splice(0, files.length)
-  
+  handleSelect(menuIndex.value)
 }
 
-const cdDir = (e) => {
-  console.log(e);
+
+const cdDir = (index) => {
+  const nextPath = files[index]
+  pathList.push(nextPath)
+  router.replace({
+    path: '/files',
+    query: {
+      path: nextPath.id
+    }
+  })
+  thisUpdateFileList(nextPath.id, undefined, undefined, undefined)
+  console.log("cdDir");
+}
+
+
+const moveFile = (index) => {
+  console.log("moveFile", files[index]);
+}
+const updateSelectValue = (value) => {
+  if(selectValue.value != value){
+    selectValue.value = value
+    files.splice(0)
+    // 获取文件列表
+    //1 所有 2 图片 3 视频 4 音频 5 文档 6 回收站
+    if(menuIndex.value == 1){
+      const pathId = route.query.path ? route.query.path : "0"
+      thisUpdateFileList(pathId, undefined, undefined, undefined)
+    }else{
+      thisUpdateFileList(undefined, menuIndex.value - 1, undefined, undefined)
+    }
+  }
 }
 
 </script>

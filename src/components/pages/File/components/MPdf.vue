@@ -1,0 +1,58 @@
+<template>
+    <div class="pdf-container">
+        <vue-office-pdf 
+            :src="PdfUrlComputed"
+            style="height: 600px; width: 100%;"
+            @rendered="renderedHandler"
+            @error="errorHandler"
+        />
+    </div>
+</template>
+
+<script setup>
+import VueOfficePdf from '@vue-office/pdf'
+import { computed } from 'vue';
+import { ref } from 'vue';
+import { getFileSignUrl } from '../../../../service/file';
+
+const props = defineProps({
+    file: {
+        type: Object,
+        required: true
+    }
+})
+
+const pdf = ref("")
+
+const PdfUrlComputed = computed(() => {
+    return pdf.value
+})
+
+getFileSignUrl(props.file.id).then(res => {
+    if(res.code == 200){
+        pdf.value = import.meta.env.VITE_BASE_HOST + res.data
+    }
+})
+
+const renderedHandler = () => {
+    console.log('rendered')
+}
+
+const errorHandler = (error) => {
+    console.log('error', error)
+}
+
+
+</script>
+
+<style lang="scss" scoped>
+
+.pdf-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 900px;
+}
+
+</style>

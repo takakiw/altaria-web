@@ -112,7 +112,7 @@ const handleClick = (tab, event) => {
             ElMessage.success('登录成功')
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
-            router.push('/')
+            router.replace('/')
         }
         else{
             ElMessage.error(res.msg)
@@ -136,7 +136,7 @@ const handleClick = (tab, event) => {
             ElMessage.success('登录成功')
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
-            router.push('/')
+            router.replace('/')
         }
         else{
             ElMessage.error(res.msg)

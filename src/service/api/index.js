@@ -1,4 +1,4 @@
-import instance from './instance.js'
+import instance from './instance.js' // 获取json
 
 export async function get(url, params) {
   const response = await instance.get(url, { params })

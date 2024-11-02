@@ -82,10 +82,6 @@ const userStore = useUserStore();
 
 const uploadList = ref([]);
 
-onMounted(() => {  
-    console.log('onMounted to Navigation.vue');
-})
-
 const add = (file) => {
   uploadList.value.push(file);
 }
@@ -103,6 +99,10 @@ const searchText = ref('');
 const handleSelect = (key, keyPath) => {
   console.log(key, keyPath)
 }
+
+onMounted(() => {
+  console.log('mounted Navigation')
+})
 
 
 </script>

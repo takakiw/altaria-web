@@ -10,6 +10,10 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.1",
+    "@liripeng/vue-audio-player": "^2.0.4",
+    "@vue-office/docx": "^1.6.2",
+    "@vue-office/excel": "^1.7.11",
+    "@vue-office/pdf": "^2.0.7",
     "animate.css": "^4.1.1",
     "axios": "^1.7.7",
     "clouddisks": "file:",
@@ -18,7 +22,9 @@
     "json-bigint": "^1.0.0",
     "pinia": "^2.2.2",
     "vue": "^3.4.37",
-    "vue-router": "^4.4.3"
+    "vue-demi": "^0.14.10",
+    "vue-router": "^4.4.3",
+    "vue3-video-play": "^1.3.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.1.2",

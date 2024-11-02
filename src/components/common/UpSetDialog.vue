@@ -345,20 +345,4 @@ const saveForm = () => {
 .el-tabs__item,.is-left,.is-active{
   width: 80px;
 }
-
-.dialog-fade-enter-active {
-  animation-duration: 1s;
-  .el-dialog {
-    animation: fadeInTopRight 1s cubic-bezier(0.32, 0.14, 0.15, 0.86);
-  }
-}
-
-.dialog-fade-leave-active {
-  background-color: transparent;
-  animation-duration: 0.5s;
-  .el-dialog {
-    animation: zoomOutDown;
-    animation-duration: 0.5s;
-  }
-}
 </style>

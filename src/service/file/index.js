@@ -1,3 +1,4 @@
+import axios from "axios"
 import {get, post, put, del} from "../api"
 
 // 上传文件
@@ -13,8 +14,8 @@ export function postUploadFile(fid, pid, file, md5, index, total){
 }
 
 // 下载文件
-export function getDownloadFile(id){
-    return get("/file/file/download/" + id)
+export function getDownloadSignUrl(id){
+    return get("/file/file/download/sign/" + id)
 }
 
 // 创建文件夹
@@ -23,7 +24,7 @@ export function postCreateFolder(pid, name){
         pid: pid,
         fileName: name
     }
-    return post("/file/folder/create", data)
+    return post("/file/file/mkdir", data)
 }
 
 // 移动文件
@@ -78,7 +79,7 @@ export function removeFile(ids){
 }
 
 // 恢复文件
-export function restoreFile(ids){
+export function putRestoreFile(ids){
     return put("/file/file/restore/" + ids)
 }
 
@@ -87,17 +88,12 @@ export function getRecycleList(){
     return get("/file/file/recycle/list")
 }
 
-// 预览文件
-export function getPreviewFile(id){
-    return import.meta.env.VITE_BASE_HOST + "/file/preview/file/" + id
+
+// 获取文件签名链接
+export function getFileSignUrl(id, category){
+    return get("/file/preview/sign/" + id, {category: category})
 }
 
-// 预览视音频
-export function getPreviewVideo(id){
-    return import.meta.env.VITE_BASE_HOST + "/file/preview/video/" + id
-}
-
-// 预览封面
-export function getPreviewCover(id){
-    return import.meta.env.VITE_BASE_HOST + "/file/preview/cover/" + id
+export function getFileBlob(url){
+    return axios.get(url, {responseType: 'blob'});
 }

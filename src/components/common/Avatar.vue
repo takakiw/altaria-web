@@ -66,7 +66,7 @@ const router = useRouter()
 const centerDialogVisible = ref(false)
 
 const toLogin = () => {
-    router.push('/login')
+    router.replace('/login')
 }
 
 const logout = () => {

@@ -92,7 +92,7 @@ const register = () => {
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
             setTimeout(() => {
-                router.push("/")
+                router.replace("/")
             }, 1000)
         }
         else{
