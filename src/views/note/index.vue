@@ -1,88 +1,102 @@
 <template>
-    <div>
-        <el-button type="primary" @click="allActive">全选</el-button>
-        <el-button type="primary" @click="cancelAll">取消全选</el-button>
-        <ul :v-infinite-scroll-disabled="true" class="infinite-list" style="overflow: auto">
-            <div v-for="(file, index) in files" :file="file" :key="index" style="padding: 20px;">
-                <FileSquareTable :file="file" :checked="file.checked" @addFile="addFile(index)" @removeFile="removeFile(index)"></FileSquareTable>
-            </div>
-        </ul>
+  <div class="share-window">
+    <div class="share-window-header">
+      <el-scrollbar class="infinite-list">
+        <div v-for="(file, index) in files" :key="index" >
+        <div>{{file.fileName}}</div>
+      </div>
+      </el-scrollbar>
     </div>
+    <div class="share-window-body">
+      <!-- 选择分享密码（随机， 自定义）， 选择分享过期时间（1天， 7天， 1月） -->
+      <div style="display: flex; align-items: center; gap: 80px; width: 100%;">
+        <div>设置分享密码:</div>
+        <el-radio-group v-model="radio">
+          <el-radio value="1" size="large">随机密码</el-radio>
+          <div style="display: flex; align-items: center;">
+            <el-radio value="2" size="large">自定义密码</el-radio>
+            <el-input v-model="password" :disabled="radio != 2 " size="mini" placeholder="请输入自定义密码"
+            style="width: 150px;height: 25px;margin-left: -20px;" ></el-input>
+          </div>
+        </el-radio-group>
+      </div>
+      <div style="display: flex; align-items: center; gap: 100px; width: 100%;">
+        <div>设置分享过期时间:</div>
+        <el-radio-group v-model="expireRadio">
+          <el-radio value="1" size="large">1天</el-radio>
+          <el-radio value="2" size="large">7天</el-radio>
+          <el-radio value="3" size="large">1月</el-radio>
+        </el-radio-group>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
-import FileSquareTable from '../../components/pages/File/FileSquareTable.vue';
+import { ref } from 'vue';
 
-const files = reactive([])
 
+const files = ref([])
 for (let i = 0; i < 100; i++) {
-    files.push({
-        name: `文件${i}`,
-        size: `${Math.floor(Math.random() * 10000) / 100}KB`,
-        type: i % 9,
-        checked: false
-    })
+  files.value.push({
+    fileName: `文件${i}`,
+    size: `${Math.floor(Math.random() * 10000) / 100}KB`,
+    date: new Date().toLocaleString(),
+    type: '文件'
+  })  
 }
 
-const activeFiles = ref([])
+const password = ref('')
 
-const addFile = (index) => {
-    files[index].checked = true
-    activeFiles.value.push(files[index])
-}
-
-const removeFile = (index) => {
-    files[index].checked = false
-    activeFiles.value.splice(activeFiles.value.indexOf(files[index]), 1)
-}
-
-const allActive = () => {
-    files.forEach(file => {
-        if (!file.checked) {
-            file.checked = true
-            activeFiles.value.push(file)
-        }
-    })
-}
-
-const cancelAll = () => {
-    files.forEach(file => {
-        if (file.checked) {
-            file.checked = false
-            activeFiles.value.splice(activeFiles.value.indexOf(file), 1)
-        }
-    })
-}
-
+const radio = ref('1')
+const expireRadio = ref('1')
 
 </script>
 
 <style lang="scss" scoped>
+.share-window {
+  padding: 20px;
+  width: 600px;
+  height: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC',
+  'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  color: #6b7785;
+  font-size: 14px;
+  gap: 20px;
+}
+.share-window-header {
+  width: 600px;
+  max-height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.infinite-list{
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+.share-window-body {
+  width: 600px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
 
 </style>
 
 <style>
-.infinite-list {
-  height: 80vh;
-  padding: 0;
-  margin: 0;
-  list-style: none;
+.el-scrollbar__view{
   display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-}
-.infinite-list .infinite-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  background: var(--el-color-primary-light-9);
-  margin: 10px;
-  color: var(--el-color-primary);
-}
-.infinite-list .infinite-list-item + .list-item {
-  margin-top: 10px;
+  gap: 20px;
+  align-content: center;
 }
 </style>
