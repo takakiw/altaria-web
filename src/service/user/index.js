@@ -40,3 +40,10 @@ export function postUploadAvatar(file) {
     formData.append("file", file)
     return post("/user/uploadAvatar", formData);
 }
+
+export function getAvatarUrl(avatar) {
+    if (!avatar) {
+        return '';
+    }
+    return "/preview/avatar/" + avatar;
+}

@@ -55,13 +55,11 @@
         formData.append("uId", upFile.value.uid)
         axios.post('/api/upload', formData).then(res => {
           ElMessage.success('上传成功')
-          console.log(res)
-          imageUrl.value = ''
+=          imageUrl.value = ''
           avatarUrl.value = "/api/download"
           upFile.value = null
         }).catch(err => {
           ElMessage.error('上传失败')
-          console.log(err)
         })
       } else {
         ElMessage.error('请先选择文件')

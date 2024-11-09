@@ -92,7 +92,13 @@ const register = () => {
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
             setTimeout(() => {
-                router.replace("/")
+                let redirectPath = localStorage.getItem('redirectPath')
+                if(redirectPath){
+                    localStorage.removeItem("redirectPath")
+                    router.replace(redirectPath)
+                }else{
+                    router.replace('/')
+                }
             }, 1000)
         }
         else{

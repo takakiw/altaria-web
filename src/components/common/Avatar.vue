@@ -16,7 +16,8 @@
                     <el-avatar v-if="!userStore.isLogin" :icon="UserFilled"/>
                     <div v-else>
                         <el-avatar
-                            :src=userStore.avatarURL
+                            :icon="UserFilled"
+                            :src=getAvatarUrl(userStore.getAvatar)
                         />
                     </div>
                 </template>
@@ -54,24 +55,38 @@
 <script setup>
 import { UserFilled } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store';
-import { useRoute, useRouter } from 'vue-router';
-import { ref } from 'vue';
+import {  useRouter } from 'vue-router';
+import { onMounted, ref } from 'vue';
 import UpSetDialog from './UpSetDialog.vue';
+import { getAvatarUrl, getUserInfo } from '../../service/user';
 
 const userStore = useUserStore()
 
-const route = useRoute()
 const router = useRouter()
 
 const centerDialogVisible = ref(false)
 
+onMounted(() => {
+    if (localStorage.getItem('token')){
+    getUserInfo(-1).then(res => {
+    if (res.code!== 200) {
+        return;
+    }
+    userStore.setUserInfo(res.data);
+    userStore.user.id = res.data.id;
+    })
+    }
+})
+
 const toLogin = () => {
-    router.replace('/login')
+    router.push('/login')
 }
 
 const logout = () => {
     localStorage.removeItem('token')
     userStore.resetUser()
+    // 刷新页面
+    window.location.reload()
 }
 
 const showSetup = () => {

@@ -112,7 +112,13 @@ const handleClick = (tab, event) => {
             ElMessage.success('登录成功')
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
-            router.replace('/')
+            let redirectPath = localStorage.getItem('redirectPath')
+            if(redirectPath){
+                localStorage.removeItem("redirectPath")
+                router.replace(redirectPath)
+            }else{
+                router.replace('/')
+            }
         }
         else{
             ElMessage.error(res.msg)
@@ -136,7 +142,13 @@ const handleClick = (tab, event) => {
             ElMessage.success('登录成功')
             localStorage.setItem('token', res.data.token)
             userStore.user.id = res.data.id
-            router.replace('/')
+            let redirectPath = localStorage.getItem('redirectPath')
+            if(redirectPath){
+                localStorage.removeItem("redirectPath")
+                router.replace(redirectPath)
+            }else{
+                router.replace('/')
+            }
         }
         else{
             ElMessage.error(res.msg)

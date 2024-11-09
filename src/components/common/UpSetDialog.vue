@@ -20,7 +20,7 @@
                         :auto-upload="false"
                     >
                         <img v-if="tempAvatarUrl !== ''" :src="tempAvatarUrl" class="avatar" />
-                        <img v-else-if="userStore.avatarURL" :src="userStore.avatarURL" class="avatar" />
+                        <img v-else-if="userStore.getAvatar" :src="getAvatarUrl(userStore.getAvatar)" class="avatar" />
                         <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
                     </el-upload>
                 </el-tooltip>
@@ -85,7 +85,7 @@ import { ElMessage } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store';
 import "animate.css"
-import { getCodeByEmail, getUserInfo, postUploadAvatar, putUpdateUserInfo } from '../../service/user';
+import { getAvatarUrl, getCodeByEmail, getUserInfo, postUploadAvatar, putUpdateUserInfo } from '../../service/user';
 const props = defineProps({
     centerDialogVisible: {
         type: Boolean,

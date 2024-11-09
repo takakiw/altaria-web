@@ -11,10 +11,12 @@
 <style lang="scss" scoped>
 
 #container {
+    padding-top: 5px;
+    box-shadow: var(--el-box-shadow-lighter);
     width: 80%;
     margin: 0 auto;
-    min-width: 800px;
+    min-width: 1000px;
     display: flex;
-    height: calc(100vh - 85px)
+    height: calc(100vh - 75px)
 }
 </style>

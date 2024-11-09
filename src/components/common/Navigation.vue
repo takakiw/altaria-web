@@ -7,7 +7,7 @@
         </div>
         <div class="menu">
             <el-menu
-                :default-active="`${props.activeIndex}`"
+                :default-active="activeIndex"
                 class="el-menu-demo"
                 mode="horizontal"
                 :ellipsis="false"
@@ -20,7 +20,7 @@
                 <router-link to="/notes" class="menu-item" >笔记</router-link>
             </el-menu-item>
             <el-menu-item index="3">
-                <router-link to="#" class="menu-item" >分享</router-link>
+                <router-link to="/share" class="menu-item" >分享</router-link>
             </el-menu-item>
             <el-menu-item index="4">
                 <router-link to="#" class="menu-item" >消息</router-link>
@@ -32,39 +32,62 @@
                 <router-link to="#" class="menu-item">工具</router-link>
             </el-menu-item>
             </el-menu>
-            <div class="search">
-                <el-input
-                    v-model="searchText"
-                    style="width: 240px"
-                    placeholder="search..."
-                    :prefix-icon="Search"
-                    />
-            </div>
         </div>
+        <div style="display: none;"><UploadFile ref="uploadFileRef" 
+            :currentPid="currentPid" 
+            @updateFileListAndSpace="updateFileListAndSpace" /></div>
         <div style="display: flex;align-items: center;gap: 10px;">
             <div v-if="userStore.isLogin" style="margin-top: 5px; cursor: pointer;">
                 <el-popover
                 placement="left-end"
                 :width="600"
-                trigger="click"
-            >
-                <template #reference>
-                    <el-icon size="30px"><UploadFilled /></el-icon>
-                </template>
-                <div style="width: 100%; height: 300px; background-color: #f9f9f9; text-align: center;">
-                    <span>上传任务</span>
-                    <div style=" height: 90%;margin-top: 10px;">
-                        <span v-for="(item, index) in uploadList" :key="index">
-                            {{item}}
-                        </span>
+                trigger="click">
+                    <template #reference>
+                        <el-icon size="30px"><UploadFilled /></el-icon>
+                    </template>
+                    <div style="width: 100%; height: 300px; background-color: #f9f9f9; text-align: center;">
+                        <span>上传任务</span>
+                        <el-divider  />
+                        <div style=" height: 90%;margin-top: 10px;">
+                            <div class="upload-list">
+                                <el-scrollbar class="infinite-list">
+                                <div v-for="item in uploadFileRef?.uploadFileList" :key="item.uid" class="item">
+                                    <div class="item-left">
+                                    <div class="item-left-top">
+                                        <div>{{ item.filename }}</div>
+                                        <div v-if="item.status === STATUS.fail.value" style="color: red;">{{ item.errorMsg }}</div>
+                                    </div>
+                                    <el-progress :status="statusComponent(item.status)" :text-inside="true" :stroke-width="12" style="font-size: 11px;" :percentage="item.status !== STATUS.init.value? item.progress : 0" />
+                                    </div>
+                                    <div class="item-right">
+                                    <div v-if="item.status === STATUS.fail.value" @click="retryUpload(item.uid)"> <!-- 上传失败，显示重试按钮 -->
+                                        <el-icon class="item-icon"><Refresh class="item-icon"/></el-icon>
+                                    </div>
+                                    <div v-else-if="item.status === STATUS.init.value"> <!-- 计算md5，显示md5进度条 -->
+                                        <el-progress :percentage="item.progress" :status="item.status == STATUS.fail.value? 'exception' : ''" :width="25" :stroke-width="2" type="circle" :show-text="false" />
+                                    </div>
+                                    <div v-else-if="item.status === STATUS.uploading.value && !item.pause" @click="pauseUpload(item.uid)"> <!-- 上传中，显示暂停按钮 -->
+                                        <img src="@/assets/icon-image/stop.png" 
+                                        alt="" 
+                                        class="item-icon">
+                                    </div>
+                                    <div v-else-if="item.status === STATUS.uploading.value &&  item.pause" @click="continueUpload(item.uid)"> <!-- 暂停上传，显示继续按钮 -->
+                                        <el-icon class="item-icon"><CaretRight class="item-icon"/></el-icon>
+                                    </div>
+                                    <div>
+                                        <el-icon class="item-icon"><Close class="item-icon" @click="delList(item.uid)"/></el-icon>
+                                    </div>
+                                </div>
+                            </div>
+                            </el-scrollbar>
+                        </div>
                     </div>
                 </div>
-            </el-popover>
+                </el-popover>
             </div>
-            <div>
-                <Avatar />
-            </div>
-            
+        <div>
+            <Avatar />
+        </div>
         </div>
     </div>
     </div>
@@ -73,21 +96,74 @@
 
 <script setup>
 import Avatar from './Avatar.vue';
-import {  defineProps, ref } from 'vue';
-import { Search, UploadFilled } from '@element-plus/icons-vue';
-import { onMounted } from 'vue';
+import {  defineProps, ref, watch } from 'vue';
+import {UploadFilled, CaretRight, Refresh, Close} from "@element-plus/icons-vue"
+import UploadFile from '../pages/File/UploadFile.vue';
 import { useUserStore } from '@/store';
+import { useRoute } from 'vue-router';
 
 const userStore = useUserStore();
+const route = useRoute();
+const activeIndex = ref("1");
+watch(() => route.path, () => {
+    // 包含files
+    if(route.path.includes('/files')){
+        activeIndex.value = "1";
+    }
+    // 包含notes
+    if(route.path.includes('/notes')){
+        activeIndex.value = "2";
+    }
+    // 包含share
+    if(route.path.includes('/share')){
+        activeIndex.value = "3";
+    }
+    // 包含message
+    if(route.path.includes('/message')){
+        activeIndex.value = "4";
+    }
+    // 包含gpt
+    if(route.path.includes('/gpt')){
+        activeIndex.value = "5";
+    }
+    // 包含tools
+    if(route.path.includes('/tools')){
+        activeIndex.value = "6";
+    }
+}, { immediate: true })
 
-const uploadList = ref([]);
+const uploadFileRef = ref(null); // submitSelect-选择文件, uploadFileList-上传文件列表, pauseUpload-暂停上传, continueUpload-继续上传, cancelUpload-取消上传, retryUpload-重试上传
 
-const add = (file) => {
-  uploadList.value.push(file);
+const currentPid = ref("0");
+
+const addFile = (pid) => {
+    currentPid.value = String(pid);
+    uploadFileRef.value.submitSelect();
 }
 
-// 暴露add方法
-defineExpose({ add })
+const STATUS = {
+  init: { value: 0, text: '计算md5' },
+  uploading: { value: 1, text: '上传中' },
+  success: { value: 2, text: '上传成功' },
+  fail: { value: 3, text: '上传失败' },
+  cancel: { value: 4, text: '取消上传' }
+}
+
+const statusComponent = (status) => {
+  switch (status) {
+    case STATUS.success.value:
+      return'success'
+    case STATUS.fail.value:
+      return 'exception'
+    default:
+      return '' 
+  }
+}
+
+
+
+// 暴露addFile方法
+defineExpose({ addFile })
 
 const props = defineProps({
     activeIndex:{
@@ -95,14 +171,35 @@ const props = defineProps({
         default: 1
     }
 })
-const searchText = ref('');
 const handleSelect = (key, keyPath) => {
   console.log(key, keyPath)
 }
 
-onMounted(() => {
-  console.log('mounted Navigation')
-})
+const emit = defineEmits(['updateFileListAndSpace'])
+
+const updateFileListAndSpace = () => {
+  emit('updateFileListAndSpace')
+}
+
+// 暂停上传
+const pauseUpload = (uid) => {
+  uploadFileRef.value.pauseUpload(uid)
+}
+
+// 继续上传
+const continueUpload = (uid) => {
+  uploadFileRef.value.continueUpload(uid)
+}
+
+// 取消上传
+const delList = (uid) => {
+    uploadFileRef.value.cancelUpload(uid)
+}
+
+// 重试上传
+const retryUpload = (uid) => {
+  uploadFileRef.value.retryUpload(uid)
+}
 
 
 </script>
@@ -113,7 +210,7 @@ $nav-height: 60px;
 
 
 .navigation {
-    min-width: 1300px;
+    min-width: 1000px;
     display: flex;
     justify-content: center;
     height: $nav-height;
@@ -151,20 +248,71 @@ $nav-height: 60px;
 }
 
 
-
-
-.search{
-    margin-left: 40px;
-    margin-top: 5px;
-    input{
-        padding: 5px;
-        border-radius: 25px;
-        border-color: aliceblue;
-        font-size: 18px;
-        width: 200px;
-        margin-top: 5px;
-    }
+.upload-list{
+  width: 100%;
+  height: 100%;
+  font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC',
+  'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  color: #6b7785;
+  font-size: 14px;
 }
+
+.infinite-list{
+  height: 100%;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.item{
+  width: 100%; 
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  margin: 0 15px;
+  gap: 15px;
+  border-bottom: 1px solid #d6d3d3;
+  background-color: #ffffff;
+  border-radius: 15px;
+}
+.item-left{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item-left-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.item-right{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.item-icon{
+  cursor: pointer; 
+  width: 25px;
+  height: 25px;
+  background-color: rgba(239, 239, 239, 0.4);
+  border-radius: 50%;
+}
+
+.item-left .el-progress--line {
+  margin-bottom: 15px;
+  width: 400px;
+  background-color: #ffffff;
+}
+
+.infinite-list .el-scrollbar__wrap--hidden-default{
+    width: 100%;
+}
+
+
 
 </style>
 
@@ -179,4 +327,7 @@ $nav-height: 60px;
 .el-divider--horizontal{
     margin-top: 0;
 }
+.el-scrollbar__wrap{
+    width: 100%;
+  }
 </style>

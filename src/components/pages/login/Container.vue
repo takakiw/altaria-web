@@ -20,10 +20,6 @@
         </div>
     </div>
     </div>
-    <!-- <div id="app">
-        <iframe src="http://localhost:8080/preview" frameborder="0" style="height: 70%; width: 70%;"></iframe>
-        <button @click="isPdf">an</button>
-    </div> -->
 </template>
 
 <script setup>
@@ -33,11 +29,6 @@ import { ElMessage } from "element-plus";
 import { onMounted, ref } from "vue"
 
 const isLogin = ref(false)
-
-/* const isPdf = () => {
-  console.log(/Chrome|Firefox|Safari|Edge/.test(navigator.userAgent));
-  
-} */
 </script>
 
 <style lang="scss" scoped>
