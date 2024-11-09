@@ -10,19 +10,34 @@
 <script setup>
 import {  getFileSignUrl } from "@/service/file";
 import { computed, reactive, ref } from 'vue';
+import { getSharePreviewUrl } from "../../../../service/share";
+import { useRoute } from "vue-router";
 
 const props = defineProps({
     file: {
         type: Object,
         required: true
+    },
+    shareMode: {
+        type: Boolean,
+        default: false
     }
 })
 
+const route = useRoute();
+const shareId = route.params.shareId;
 
 const videUrl = ref("");
-getFileSignUrl(props.file.id).then(res => {
+if(props.shareMode){
+  getSharePreviewUrl(shareId, props.file.id).then(res => {
     videUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
-});
+  });
+}else{
+  getFileSignUrl(props.file.id).then(res => {
+    videUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
+  });
+}
+
 
 const videoUrlComputed = computed(() => {
     return videUrl.value;
@@ -56,7 +71,7 @@ const options = reactive({
 });
 
 const onPlay = () => {
-  console.log("onPlay");
+  
 }
 </script>
 

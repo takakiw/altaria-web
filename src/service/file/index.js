@@ -2,15 +2,17 @@ import axios from "axios"
 import {get, post, put, del} from "../api"
 
 // 上传文件
-export function postUploadFile(fid, pid, file, md5, index, total){
+export function postUploadFile(fid, pid, file, filename, type, md5, index, total){
     const data = new FormData()
     data.append('fid', fid)
     data.append('pid', pid)
     data.append('file', file)
+    data.append('fileName', filename)
+    data.append('type', type)
     data.append('md5', md5)
     data.append('index', index)
     data.append('total', total)
-    post("/file/file/upload", data)
+    return post("/file/file/upload", data)
 }
 
 // 下载文件
@@ -34,7 +36,7 @@ export function putMoveFile(oldPid, pid, ids){
         pid: pid,
         ids: ids
     }
-    return put("/file/file/move", data)
+    return put("/file/file/mvfile", data)
 }
 
 // 重命名文件
@@ -52,13 +54,13 @@ export function getFileList(id, type, fileName, order){
     if(id != undefined){
         params.id = id
     }
-    if(type){
+    if(type != undefined){
         params.type = type
     }
-    if(fileName){
+    if(fileName != undefined){
         params.fileName = fileName
     }
-    if(order){
+    if(order != undefined){
         params.order = order
     }
     return get("/file/file/list", params)
@@ -96,4 +98,8 @@ export function getFileSignUrl(id, category){
 
 export function getFileBlob(url){
     return axios.get(url, {responseType: 'blob'});
+}
+
+export function delUploadFile(id){
+    return del("/file/file/delUpload/" + id);
 }

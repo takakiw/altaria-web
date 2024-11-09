@@ -16,7 +16,8 @@ const instance = axios.create({
       const res = json.parse(data)
       return res
     }
-  ]
+  ],
+  withCredentials: true, // 允许携带cookie
 })
 
 instance.interceptors.request.use(
@@ -38,8 +39,12 @@ instance.interceptors.response.use(
       localStorage.removeItem('token')
       userStore.resetUser()
     }
-
-    const jwt = response.config.headers.Authorization
+    const authorization = response.headers.getAuthorization()
+    if (!authorization) return response
+    let token = authorization.substring(7)
+    if (token) {
+      localStorage.setItem('token', token)
+    }
     return response
   },
   (error) => {

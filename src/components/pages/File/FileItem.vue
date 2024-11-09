@@ -1,6 +1,6 @@
 <template>
       <div class="file-item-top">
-        <div class="top-left">
+        <div class="top-left" v-if="props.files.length > 0">
           <el-checkbox @change="checkChange" 
           v-model="checkAll"
           :indeterminate="activeFiles.length > 0 && activeFiles.length < props.files.length">
@@ -8,7 +8,7 @@
           <span style="margin-left: 10px; line-height: 30px;">{{ activeFiles.length == 0 ? "共" + props.files.length + "个文件"  : "已选中" + activeFiles.length + "个文件" }}</span>
         </div>
         <div class="top-right">
-          <div>
+          <div v-if="!shareMode && props.menuIndex !== '6'">
             <!-- 排序方式 -->
           <el-select
             v-model="selectValue"
@@ -28,23 +28,32 @@
           </div>
         </div>
       </div>
-      <el-scrollbar class="infinite-list">
-          <div v-for="(file, index) in props.files" :file="file" :key="index" style="padding: 10px;">
-              <FileSquareTable :file="file" 
-                :checked="file.checked" 
-                @addActiveFile="addActiveFile(index)" 
-                @removeActiveFile="removeActiveFile(index)"
-                @updateData="updateData(index)"
-                @cdDir="cdDir(index)"
-                @moveFile="moveFile(index)"
-                >
-            </FileSquareTable>
-          </div>
-      </el-scrollbar>
+      <div class="file-item-content">
+        <el-scrollbar class="infinite-list" v-if="props.files.length > 0">
+            <div v-for="(file, index) in props.files" :file="file" :key="index" style="padding: 10px;">
+                <FileSquareTable :file="file" 
+                  :menuIndex="`${props.menuIndex}`" 
+                  :checked="file.checked" 
+                  :shareMode="props.shareMode"
+                  @addActiveFile="addActiveFile(index)" 
+                  @removeActiveFile="removeActiveFile(index)"
+                  @updateData="updateData(index)"
+                  @cdDir="cdDir(index)"
+                  @moveFile="moveFile(index)"
+                  @shareFile="shareFile(index)"
+                  >
+              </FileSquareTable>
+            </div>
+        </el-scrollbar>
+        <div v-else>
+          <el-empty description="暂无文件">
+          </el-empty>
+        </div>
+      </div>
 </template>
 
 <script setup>
-import { ref, defineExpose, defineProps, defineEmits } from 'vue';
+import { ref, defineExpose, defineProps, defineEmits, watch } from 'vue';
 import FileSquareTable from "./FileSquareTable.vue"
 
 
@@ -57,7 +66,17 @@ const props = defineProps({
   },
   selectValue: {
     type: String,
+    required: false,
     default: "0"
+  }, menuIndex: {
+    type: String,
+    required: false,
+    default: "1"
+  },
+  shareMode: {
+    type: Boolean,
+    required: false,
+    default: false
   }
 })
 
@@ -76,6 +95,11 @@ const removeActiveFile = (index) => {
   checkAll.value = activeFiles.value.length == props.files.length
 }
 
+watch(() => props.files, () => {
+  activeFiles.value = props.files.filter(file => file.checked)
+  checkAll.value = activeFiles.value.length == props.files.length
+}, { deep: true })
+
 const activeAll = () => {
   emit("activeAll")
   checkAll.value = true
@@ -85,7 +109,7 @@ const activeAll = () => {
 const cancelAll = () => {
   emit("cancelAll")
   checkAll.value = false
-  activeFiles.value = []
+  activeFiles.value = props.files.filter(file => file.checked)
 }
 
 const checkChange = (e) => {
@@ -102,6 +126,7 @@ const updateData = () => {
 }
 
 const cdDir = (index) => {
+  cancelAll()
   emit("cdDir", index)
 }
 
@@ -127,7 +152,12 @@ const sortFile = (value) => {
   emit("updateSelectValue", value)
 }
 
-const emit = defineEmits(['update:fileChecked', "activeAll", "cancelAll", "updateData", "cdDir", "updateSelectValue", "moveFile"])
+const shareFile = (index) => {
+  emit("shareFile", index)
+}
+
+
+const emit = defineEmits(['update:fileChecked', "activeAll", "cancelAll", "updateData", "cdDir", "updateSelectValue", "moveFile", "shareFile"])
 defineExpose({activeFiles})
 </script>
 
@@ -148,26 +178,36 @@ defineExpose({activeFiles})
   font-size: 14px;
   color: #4e5969;
 }
-.top-right{
-  
+
+.file-item-content{
+  width: 100%;
+  height: 710px;
+  padding: 0;
+  margin: 0;
+}
+
+.infinite-list{
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border-bottom: 1px solid #e6e6e6;
 }
 
 </style>
 
 <style>
-.infinite-list {
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: row;
-}
+
 .el-scrollbar__view{
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  padding: 0px;
+  margin: 0;
+}
+.el-scrollbar{
+  padding: 0;
+  margin: 0;
 }
 </style>

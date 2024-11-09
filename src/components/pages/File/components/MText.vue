@@ -10,24 +10,43 @@
 import { computed, ref } from 'vue';
 import { getFileSignUrl } from '../../../../service/file';
 import axios from 'axios';
+import { getSharePreviewUrl } from '../../../../service/share';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
     file: {
         type: Object,
         required: true
+    },
+    shareMode: {
+        type: Boolean,
+        default: false
     }
 })
 
 
 const text = ref('Hello World');
 
-getFileSignUrl(props.file.id).then(res => {
-    if (res.code === 200) {
-        axios.get(import.meta.env.VITE_BASE_HOST + res.data).then(res => {
-            text.value = res.data;
-        })
-    }
-})
+
+const route = useRoute()
+const shareId = route.params.shareId
+if(props.shareMode){
+    getSharePreviewUrl(shareId, props.file.id).then(res => {
+        if (res.code === 200) {
+            axios.get(import.meta.env.VITE_BASE_HOST + res.data).then(res => {
+                text.value = res.data;
+            })
+        }
+    })
+}else{
+    getFileSignUrl(props.file.id).then(res => {
+        if (res.code === 200) {
+            axios.get(import.meta.env.VITE_BASE_HOST + res.data).then(res => {
+                text.value = res.data;
+            })
+        }
+    })
+}
 
 </script>
 
@@ -35,7 +54,6 @@ getFileSignUrl(props.file.id).then(res => {
 
 .text-container {
     display: flex;
-    justify-content: center;
     width: 550px;
     height: 600px;
     background-color: rgb(255, 252, 232);

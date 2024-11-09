@@ -12,13 +12,6 @@
 
 <script setup>
 
-const props = defineProps({
-    file: {
-        type: Object,
-        required: true
-    }
-})
-
 //引入VueOfficeExcel组件
 import VueOfficeExcel from '@vue-office/excel'
 //引入相关样式
@@ -26,6 +19,19 @@ import '@vue-office/excel/lib/index.css'
 import { computed, reactive, ref } from 'vue';
 import { getFileSignUrl } from '../../../../service/file';
 import axios from 'axios';
+import { getSharePreviewUrl } from '../../../../service/share';
+import { useRoute } from 'vue-router';
+
+const props = defineProps({
+    file: {
+        type: Object,
+        required: true
+    },
+    shareMode: {
+        type: Boolean,
+        default: false
+    }
+})
 
 const options = reactive({
     xls: false,       //预览xlsx文件设为false；预览xls文件设为true
@@ -43,13 +49,27 @@ const excelComputed = computed(() => {
     return excel.value
 })
 
-getFileSignUrl(props.file.id).then(res => {
+const route = useRoute()
+const shareId = route.params.shareId
+if(props.shareMode){
+  getSharePreviewUrl(shareId, props.file.id).then(res => {
+      if (res.code === 200) {
+          axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
+              excel.value = res.data
+          });
+      }
+  }).catch(err => {
+      console.log(err)
+  })
+}else{
+    getFileSignUrl(props.file.id).then(res => {
     if (res.code === 200) {
         axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
             excel.value = res.data
         });
     }
 })
+}
 
 const renderedHandler = (event) => {
     console.log("renderedHandler", event)
@@ -66,8 +86,7 @@ const errorHandler = (event) => {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    min-width: 900px;
+    width: 868px;
 }
 
 </style>

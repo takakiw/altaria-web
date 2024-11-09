@@ -17,11 +17,17 @@ import '@vue-office/docx/lib/index.css'
 import { computed, ref } from 'vue';
 import { getFileSignUrl } from '../../../../service/file';
 import axios from 'axios';
+import { getSharePreviewUrl } from '../../../../service/share';
+import { useRoute } from 'vue-router';
 
 const props = defineProps({
     file :{
         type: Object,
         required: true
+    },
+    shareMode :{
+        type: Boolean,
+        default: false
     }
 })
 
@@ -31,13 +37,25 @@ const docxComputed = computed(() => {
     return docx.value
 })
 
-getFileSignUrl(props.file.id).then(res => {
+const route = useRoute()
+const shareId = route.params.shareId
+if(props.shareMode){
+  getSharePreviewUrl(shareId, props.file.id).then(res => {
+      axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
+          docx.value = res.data
+      });
+  }).catch(err => {
+      console.log(err)
+  })
+}else{
+    getFileSignUrl(props.file.id).then(res => {
     if (res.code === 200) {
         axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
             docx.value = res.data
         });
     }
 })
+}
 
 const renderedHandler = () => {
     console.log('渲染完成')

@@ -22,11 +22,8 @@ export const useUserStore = defineStore('user', () => {
         return user.id > 0
     })
 
-    const avatarURL = computed(() => {
-        if (!user.avatar) {
-            return ''
-        }
-        return "http://localhost:9000" + "/preview/avatar/" + user.avatar
+    const getAvatar = computed(() => {
+        return user.avatar
     })
 
     const resetUser = () => {
@@ -55,5 +52,5 @@ export const useUserStore = defineStore('user', () => {
         return user.role === 1? '管理员' : '普通用户'
     })
 
-    return {user, isLogin,setUserInfo,avatarURL, resetUser, setAvatar, getRoleName, roleList}
+    return {user, isLogin,setUserInfo, getAvatar, resetUser, setAvatar, getRoleName, roleList}
 })

@@ -1,6 +1,5 @@
 <template>
-  <Container style="margin-top: 5px;">
-    <!-- <el-empty description="description" /> -->
+  <Container style="padding-top: 5px; box-shadow: var(--el-box-shadow-lighter)">
      <div class="left-container">
       <div class="left-top">
       <el-menu
@@ -36,10 +35,10 @@
       </el-menu>
       </div>
       <div class="left-bottom">
-          <div style="width: 100%; padding: 10px;">
+          <div style="width: 90%;padding-bottom: 10px;">
             <el-progress :percentage="percentage" />
           </div>
-          <span style="width: 100%;">{{sizeToStandard(useSpace)}}/{{ sizeToStandard(totalSpace) }}</span>
+          <span>{{sizeToStandard(useSpace)}}/{{ sizeToStandard(totalSpace) }}</span>
       </div>
      </div>
      <div class="right-container">
@@ -59,7 +58,8 @@
                     v-model="searchText"
                     style="width: 240px"
                     placeholder="search..."
-                    :prefix-icon="Search"/></div>
+                    :prefix-icon="Search"
+                    @keydown.enter="searchFile"/></div>
         </div>
         <div class="file-path">
           <div v-if="menuIndex == 1 && pathList.length != 0" class="file-path">
@@ -73,7 +73,8 @@
       <el-divider></el-divider>
       <div class="right-content">
         <div v-if="getFileLength != 0">
-           <FileItem ref="fileItemRef" 
+           <FileItem ref="fileItemRef"
+            :menuIndex="`${menuIndex}`" 
             :files="files"
             :selectValue="selectValue"
             @update:fileChecked="updateFileChecked"
@@ -82,7 +83,8 @@
             @updateData="updateData"
             @cdDir="cdDir"
             @updateSelectValue="updateSelectValue"
-            @moveFile="moveFile"/>
+            @moveFile="moveFile"
+            @shareFile="shareFile"/>
         </div>
         <div v-else>
           <el-empty description="暂无文件">
@@ -109,13 +111,66 @@
         </template>
       </el-dialog>
 
-     
+      <el-dialog
+        v-model="moveFileShow"
+        title="移动文件"
+        width="100"
+        :show-close="false"
+        :center="true"
+      >
+        <template #footer>
+          <MoveWindow ref="moveFileRef" style="width: 100%; height: 400px;"
+          :moveFileShow="moveFileShow"
+          :excludeFiles="moveFileList"/>
+          <div class="move-button">
+          <el-button type="primary"  @click="moveFileToTarget">确定</el-button>
+          <el-button type="default"  @click="moveFileShow = false">取消</el-button>
+        </div>
+        </template>
+      </el-dialog>
+      <el-dialog
+        v-model="shareFileShow"
+        title="分享文件"
+        width="500"
+        style="height: 400px;"
+        :modal="false"
+        :close-on-click-modal="false"
+        :destroy-on-close="true"
+        :center="true"
+      >
+        <template #footer>
+          <FileShare :files="shareList" 
+          @cancelShare="cancelShare"
+          @handleShare="handleShare"/>
+        </template>
+      </el-dialog>
+      <el-dialog
+      v-model="shareSuccessShow"
+      title="分享成功"
+      width="800"
+      :center="true"
+      :modal="false"
+      :close-on-click-modal="false"
+      >
+        <template #footer>
+          <div class="share-success">
+            <div class="share-url">
+              <div>{{ shareUrl }}</div>
+            </div>
+            <div>
+              <el-button type="success" plain round @click="copyUrl">复制链接和密码</el-button>
+            </div>
+          </div>
+        </template>
+      </el-dialog>
   </Container>
 </template>
 
 <script setup>
 import Container from '@/components/common/Container.vue'
 import FileItem from '../../components/pages/File/FileItem.vue';
+import MoveWindow from '../../components/pages/File/DirWindow.vue';
+import FileShare from '../../components/pages/File/components/FileShare.vue';
 import {
   Menu as IconMenu,
   Picture,
@@ -128,14 +183,43 @@ import {
   RemoveFilled,
 } from '@element-plus/icons-vue'
 
-import { computed, reactive, ref } from 'vue';
-import { delFile, getFileList, getFilePath, postCreateFolder, putRestoreFile, removeFile } from '../../service/file';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { delFile, getFileList, getFilePath, getRecycleList, postCreateFolder, putMoveFile, putRestoreFile, removeFile } from '../../service/file';
 import { ElMessage } from 'element-plus';
 import { getSpaceInfo } from '../../service/space';
-import { sizeToStandard } from '../../utils/StandardData';
+import { getShareUrl, sizeToStandard } from '../../utils/StandardData';
 import { useRoute, useRouter } from 'vue-router';
 import IconImageEnum, {getIconImage} from '../../enums/IconImageEnum';
+import { postCreateShare } from '../../service/share';
+import { useUserStore } from '../../store';
 
+const userStore = useUserStore()
+const props = defineProps({
+  updateDataFlag: {
+    type: Boolean,
+    default: false
+  }
+})
+let updateTask = null
+watch(() => props.updateDataFlag, () => {
+  if(updateTask) return
+  updateTask = "ing"
+  setTimeout(() => {
+    handleSelect(menuIndex.value)
+    getSpaceInfo().then(res => {
+      if(res.code == 200){
+        useSpace.value = res.data.useSpace
+        totalSpace.value = res.data.totalSpace
+        percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+    updateTask = null
+  }, 1000)
+})
 
 const router = useRouter()
 const route = useRoute()
@@ -158,9 +242,54 @@ const getFileLength = computed(() => {
   return files.length
 })
 
+const useSpace = ref(0)
+const totalSpace = ref(0)
+const percentage = ref(0)
+
+onMounted(async () => {
+  // 等待userStore的isLogin状态
+  if(localStorage.getItem('token')){
+    // 获取pathList的最后一项
+    const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "0"
+    getFilePath(pathId).then(res => {
+      if(res.code == 200){
+        pathList.splice(pathList.length - 1, 1)
+        pathList.push(...res.data)
+        // 获取文件列表
+        setTimeout(() => { // 延迟0.1秒执行，等待pinia数据更新
+          thisUpdateFileList(pathId, undefined, undefined, undefined)
+        }, 100)
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+    getSpaceInfo().then(res => {
+      if(res.code == 200){
+        useSpace.value = res.data.useSpace
+        totalSpace.value = res.data.totalSpace
+        percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      console.log(err);
+    })
+  }
+})
+
+const notLogin = () => {
+  ElMessage.error("未授权，请先登录"); 
+  setTimeout(() => {router.push('/login');}, 1000); 
+  return
+}
+
+
 const addFolderShow = ref(false)
 const folderName = ref('')
 const createFolder = () => {
+  if(!userStore.isLogin) {notLogin(); return;}
   postCreateFolder(pathList[pathList.length - 1].id, folderName.value).then(res => {
     if(res.code == 200){
       ElMessage.success('文件夹创建成功')
@@ -173,11 +302,10 @@ const createFolder = () => {
     console.log(err)
   })
   addFolderShow.value = false
+  folderName.value = ''
 }
 const addFolder = () => {
-  console.log("新建文件夹");
   addFolderShow.value = true
-  console.log(addFolderShow.value);
 }
 const selectValue = ref("0")
 const thisUpdateFileList = (id, type, fileName, order) =>{
@@ -197,44 +325,8 @@ const thisUpdateFileList = (id, type, fileName, order) =>{
     })
 }
 
-
-const useSpace = ref(0)
-const totalSpace = ref(0)
-const percentage = ref(0)
-
-if(localStorage.getItem('token')){
-  // 获取pathList的最后一项
-  const pathId = pathList.length > 0 ? pathList[pathList.length - 1].id : "0"
-  getFilePath(pathId).then(res => {
-    console.log(res);
-    if(res.code == 200){
-      pathList.splice(pathList.length - 1, 1)
-      pathList.push(...res.data)
-      // 获取文件列表
-      thisUpdateFileList(pathId, undefined, undefined, undefined)
-    }else{
-      ElMessage.error(res.msg)
-    }
-  }).catch(err => {
-    console.log(err)
-  })
-}
-
-
-
-getSpaceInfo().then(res => {
-  if(res.code == 200){
-    useSpace.value = res.data.useSpace
-    totalSpace.value = res.data.totalSpace
-    percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
-  }else{
-    ElMessage.error(res.msg)
-  }
-}).catch(err => {
-  console.log(err);
-})
-
 const handleSelect = (index) => {
+  if(!userStore.isLogin) {notLogin(); return;}
   menuIndex.value = index
   files.splice(0)
   // 获取文件列表
@@ -242,8 +334,22 @@ const handleSelect = (index) => {
   if(index == 1){
     const pathId = route.query.path ? route.query.path : "0"
     thisUpdateFileList(pathId, undefined, undefined, undefined)
-  }else{
+  }else if(index != 6){
     thisUpdateFileList(undefined, index - 1, undefined, undefined)
+  }else{
+    getRecycleList().then(res => {
+      if(res.code == 200){
+        files.splice(0, files.length)
+        res.data.records.forEach(item => {
+          files.push({...item, checked: false})
+        })
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+      ElMessage.error('获取回收站列表失败')
+      console.log(err)
+    })
   }
 }
 
@@ -260,11 +366,56 @@ const getFileByPath = (index) => {
   thisUpdateFileList(lastPath.id, undefined, undefined, undefined)
 }
 
-const shareFile = () => {
-  console.log("分享文件");
-  console.log(fileItemRef.value.activeFiles);
-  
+// 分享文件
+const shareFileShow = ref(false)
+const shareList = reactive([])
+
+const shareSuccessShow = ref(false)
+const shareUrl = ref('')
+
+const shareFile = (index) => {
+  if(typeof index === 'number'){
+    shareList.splice(0)
+    shareList.push(files[index])
+  }else{
+    shareList.splice(0)
+    fileItemRef.value.activeFiles.forEach(item => {
+      shareList.push(item)
+    })
+  }
+  shareFileShow.value = true
 }
+
+const copyUrl = async () => {
+  await navigator.clipboard.writeText(shareUrl.value)
+  shareSuccessShow.value = false
+}
+
+
+const cancelShare = () => {
+  shareFileShow.value = false
+}
+
+const handleShare = (formData) => {
+  const fids = shareList.map(item => item.id)
+  formData.fids = fids
+  formData.type = 0
+  postCreateShare(formData).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件分享成功')
+      shareFileShow.value = false
+      shareSuccessShow.value = true
+      shareUrl.value = getShareUrl(res.data.url, res.data.sign)
+    }else{      
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件分享失败')
+    console.log(err)
+  })
+}
+
+
 const deleteFile = () => {
   const ids = fileItemRef.value.activeFiles.map(item => item.id);
   delFile(ids).then(res => {
@@ -297,12 +448,24 @@ const recoveryFile = () => {
 
 
 
+
 const RemoveFile = () => {
   const ids = fileItemRef.value.activeFiles.map(item => item.id);
   removeFile(ids).then(res => {
     if(res.code == 200){
       ElMessage.success('文件已删除')
       handleSelect(menuIndex.value)
+      getSpaceInfo().then(res => {
+        if(res.code == 200){
+          useSpace.value = res.data.useSpace
+          totalSpace.value = res.data.totalSpace
+          percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
+        }else{
+          ElMessage.error(res.msg)
+        }
+      }).catch(err => {
+        console.log(err);
+      })
     }else{
       ElMessage.error(res.msg)
     }
@@ -312,10 +475,10 @@ const RemoveFile = () => {
   })
 }
 
-const emit = defineEmits(['add'])
-
+const emit = defineEmits(['addFile'])
 const addFile = () => {
-  emit('add', 1)
+  if(!userStore.isLogin) {notLogin(); return;}
+  emit('addFile', pathList[pathList.length - 1].id)
 }
 
 
@@ -350,13 +513,46 @@ const cdDir = (index) => {
     }
   })
   thisUpdateFileList(nextPath.id, undefined, undefined, undefined)
-  console.log("cdDir");
+  searchText.value = ''
 }
 
+const moveFileShow = ref(false)
+const moveFileRef = ref(null)
+const moveFileList = reactive([])
 
 const moveFile = (index) => {
-  console.log("moveFile", files[index]);
+  // 判断index类型
+  if(typeof index === 'number') {
+    moveFileList.splice(0)
+    moveFileList.push(files[index])
+  }
+  else {
+    moveFileList.splice(0)
+    fileItemRef.value.activeFiles.forEach(item => {
+      moveFileList.push(item)
+    })
+  }
+  moveFileShow.value = true 
 }
+
+const moveFileToTarget = () => {
+  const oldPid = pathList[pathList.length - 1].id
+  const pid = moveFileRef.value.pathList[moveFileRef.value.pathList.length - 1].id
+  const ids = moveFileList.map(item => item.id)
+  putMoveFile(oldPid, pid, ids).then(res => {
+    if(res.code == 200){
+      ElMessage.success('文件移动成功')
+      moveFileShow.value = false
+      handleSelect(menuIndex.value)
+    }else{
+      ElMessage.error(res.msg)
+    }
+  }).catch(err => {
+    ElMessage.error('文件移动失败')
+    console.log(err)
+  })
+}
+
 const updateSelectValue = (value) => {
   if(selectValue.value != value){
     selectValue.value = value
@@ -372,21 +568,23 @@ const updateSelectValue = (value) => {
   }
 }
 
+// 搜索文件
+const searchFile = () => {
+  files.splice(0)
+  // 获取文件列表
+  //1 所有 2 图片 3 视频 4 音频 5 文档 6 回收站
+  menuIndex.value = 1
+  thisUpdateFileList(undefined, undefined, searchText.value, undefined)
+  pathList.splice(0, pathList.length)
+  pathList.push({
+    id : "0",
+    fileName : "全部文件"
+  })
+}
+
 </script>
 
 <style lang="scss" scoped>
-
-.scrollbar-demo-item {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50px;
-  margin: 10px;
-  text-align: center;
-  border-radius: 4px;
-  background: var(--el-color-primary-light-9);
-  color: var(--el-color-primary);
-}
 
 .left-container {
   display: flex;
@@ -404,6 +602,11 @@ const updateSelectValue = (value) => {
   width: 100%;
   gap: 10px;
   min-height: 360px;
+  box-sizing: border-box;
+  border-right: 1px solid var(--el-menu-border-color);
+  .el-menu {
+    border-right:none;
+  }
 }
 
 .menu-vertical{
@@ -502,11 +705,50 @@ const updateSelectValue = (value) => {
     gap: 40px;
   }
   }
+
+  .move-button{
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+    gap: 50px;
+  }
+
+
+
+.search{
+  margin-left: 40px;
+  margin-top: 5px;
+  input{
+      padding: 5px;
+      border-radius: 25px;
+      border-color: aliceblue;
+      font-size: 18px;
+      width: 200px;
+      margin-top: 5px;
+  }
+}
+
+.share-success{
+  display: flex;
+  font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC',
+  'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  color: #6b7785;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  gap: 20px;
+  .share-url{
+    opacity: 1;
+    background: -webkit-linear-gradient(315deg, #7155e3 25%, #00eb1f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
 </style>
 
 <style>
 .is-active{
     width: none;
 }
-
 </style>
