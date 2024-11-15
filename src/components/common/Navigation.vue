@@ -1,8 +1,8 @@
 <template>
     <div class="navigation">
     <div class="container">
-        <div class="logo">
-            <img src="/public/cloud.png" alt="logo">
+        <div class="logo" @click="$router.push('/files')">
+            <img src="@/assets/cloud.png" alt="logo">
             <span style="display: inline-block;">Altaria</span>
         </div>
         <div class="menu">
@@ -13,6 +13,9 @@
                 :ellipsis="false"
                 @select="handleSelect"
             >
+            <el-menu-item index="0">
+                <router-link to="/" class="menu-item">首页</router-link>
+            </el-menu-item>
             <el-menu-item index="1">
                 <router-link to="/files" class="menu-item">文件</router-link>
             </el-menu-item>
@@ -21,15 +24,6 @@
             </el-menu-item>
             <el-menu-item index="3">
                 <router-link to="/share" class="menu-item" >分享</router-link>
-            </el-menu-item>
-            <el-menu-item index="4">
-                <router-link to="#" class="menu-item" >消息</router-link>
-            </el-menu-item>
-            <el-menu-item index="5">
-                <router-link to="#" class="menu-item">GPT</router-link>
-            </el-menu-item>
-            <el-menu-item index="6">
-                <router-link to="#" class="menu-item">工具</router-link>
             </el-menu-item>
             </el-menu>
         </div>
@@ -96,7 +90,7 @@
 
 <script setup>
 import Avatar from './Avatar.vue';
-import {  defineProps, ref, watch } from 'vue';
+import {  ref, watch } from 'vue';
 import {UploadFilled, CaretRight, Refresh, Close} from "@element-plus/icons-vue"
 import UploadFile from '../pages/File/UploadFile.vue';
 import { useUserStore } from '@/store';
@@ -117,18 +111,6 @@ watch(() => route.path, () => {
     // 包含share
     if(route.path.includes('/share')){
         activeIndex.value = "3";
-    }
-    // 包含message
-    if(route.path.includes('/message')){
-        activeIndex.value = "4";
-    }
-    // 包含gpt
-    if(route.path.includes('/gpt')){
-        activeIndex.value = "5";
-    }
-    // 包含tools
-    if(route.path.includes('/tools')){
-        activeIndex.value = "6";
     }
 }, { immediate: true })
 
@@ -230,14 +212,22 @@ $nav-height: 60px;
     font-size: 30px;
     img{
         height: $nav-height;
+        user-select: none; // 防止图片选中
+        user-drag: none;
+        -webkit-user-drag: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
     }
     span{
         opacity: 1;
-        background: -webkit-linear-gradient(315deg, #2608a0 25%, #14e22f);
+        background: -webkit-linear-gradient(315deg, #00c8ff 25%, #0000ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-    cursor: pointer;
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 .menu{

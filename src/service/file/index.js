@@ -93,7 +93,7 @@ export function getRecycleList(){
 
 // 获取文件签名链接
 export function getFileSignUrl(id, category){
-    return get("/file/preview/sign/" + id, {category: category})
+    return get("/preview/sign/" + id, {category: category})
 }
 
 export function getFileBlob(url){

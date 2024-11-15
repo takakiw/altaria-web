@@ -2,9 +2,7 @@
     <div id="app">
     <div class="container">
         <div class="logo">
-          <img src="../../../../public/cloud.png" alt="" style="width: 60%;height:60%;">
-          <span>青鸟云</span>
-          <span style="font-size: 50px;">一个轻便的云空间</span>
+          <span style="font-size: 50px;margin-top: 400px;">Altaria Space</span>
         </div>
         <div class="form">
           <div v-if="!isLogin">
@@ -51,8 +49,10 @@ const isLogin = ref(false)
   align-items: center;
   //box-shadow: rgba(149, 157, 165, 0.2) 0px 10px 24px;
   box-shadow:  0px 0px 50px rgba(129, 217, 226, 0.941);
-  
   border: 5px solid transparent;
+  background-image: url("../../../../public/back.jpg");
+  background-size: cover; /* 实现覆盖 */
+  background-position: center; /* 图片居中 */
 }
 
 .logo {
@@ -67,7 +67,7 @@ const isLogin = ref(false)
     
     span{
       opacity: 1;
-      background: -webkit-linear-gradient(315deg, #2608a0 25%, #14e22f);
+      background: -webkit-linear-gradient(315deg, #00c8ff 25%, #0000ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       

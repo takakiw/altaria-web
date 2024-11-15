@@ -2,7 +2,7 @@
     <div class="navigation">
     <div class="container">
         <div class="logo" @click="$router.push('/')">
-            <img src="/public/cloud.png" alt="logo">
+            <img src="@/assets/cloud.png" alt="logo">
             <span style="display: inline-block;">Altaria</span>
         </div>
         <div class="menu">

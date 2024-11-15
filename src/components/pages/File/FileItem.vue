@@ -7,8 +7,15 @@
           </el-checkbox>
           <span style="margin-left: 10px; line-height: 30px;">{{ activeFiles.length == 0 ? "共" + props.files.length + "个文件"  : "已选中" + activeFiles.length + "个文件" }}</span>
         </div>
-        <div class="top-right">
-          <div v-if="!shareMode && props.menuIndex !== '6'">
+        <div class="top-right" v-if="!shareMode && props.menuIndex !== '6'">
+            <!-- 显示模式 -->
+              <div type="link" size="small" @click="viewItemType = viewItemType ^ 1" style="cursor: pointer;"> 
+                <el-tooltip content="列表视图" placement="top">
+                  <el-icon v-if="viewItemType == 0"><Grid /></el-icon>
+                  <el-icon v-else><Expand /></el-icon>
+                </el-tooltip>
+              </div>
+
             <!-- 排序方式 -->
           <el-select
             v-model="selectValue"
@@ -26,11 +33,11 @@
             />
           </el-select>
           </div>
-        </div>
       </div>
       <div class="file-item-content">
         <el-scrollbar class="infinite-list" v-if="props.files.length > 0">
-            <div v-for="(file, index) in props.files" :file="file" :key="index" style="padding: 10px;">
+          <div v-if="viewItemType == 0" class="list-view">
+            <div  v-for="(file, index) in props.files" :file="file" :key="index" style="padding: 10px;">
                 <FileSquareTable :file="file" 
                   :menuIndex="`${props.menuIndex}`" 
                   :checked="file.checked" 
@@ -42,8 +49,26 @@
                   @moveFile="moveFile(index)"
                   @shareFile="shareFile(index)"
                   >
-              </FileSquareTable>
+              </FileSquareTable>            
             </div>
+          </div>
+          <div v-if="viewItemType == 1" class="list-view" style="gap: 3px;">
+            <div  v-for="(file, index) in props.files" :file="file" :key="index" style="width: 100%;">
+                <FileTable :file="file" 
+                  :menuIndex="`${props.menuIndex}`" 
+                  :checked="file.checked" 
+                  :shareMode="props.shareMode"
+                  @addActiveFile="addActiveFile(index)" 
+                  @removeActiveFile="removeActiveFile(index)"
+                  @updateData="updateData(index)"
+                  @cdDir="cdDir(index)"
+                  @moveFile="moveFile(index)"
+                  @shareFile="shareFile(index)"
+                  >
+              </FileTable>            
+            </div>
+          </div>
+            
         </el-scrollbar>
         <div v-else>
           <el-empty description="暂无文件">
@@ -53,11 +78,12 @@
 </template>
 
 <script setup>
-import { ref, defineExpose, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import FileSquareTable from "./FileSquareTable.vue"
+import FileTable from "./FileTable.vue"
+import { Expand, Grid } from '@element-plus/icons-vue'
 
-
-
+const viewItemType = ref(0)
 
 const props = defineProps({
   files: {
@@ -178,6 +204,12 @@ defineExpose({activeFiles})
   font-size: 14px;
   color: #4e5969;
 }
+.top-right{
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  gap: 15px;
+}
 
 .file-item-content{
   width: 100%;
@@ -194,6 +226,25 @@ defineExpose({activeFiles})
   overflow: hidden;
   border-bottom: 1px solid #e6e6e6;
 }
+
+.file-list-tag{
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  font-size: 12px;
+  border-bottom: 1px solid #f4f1f1;
+  padding-bottom: 4px;
+}
+
+.list-view{
+  display: flex; 
+  flex-wrap: wrap;
+  overflow: hidden; 
+  width: 100%;
+  height: 100%;
+  gap: 15px;
+}
+
 
 </style>
 

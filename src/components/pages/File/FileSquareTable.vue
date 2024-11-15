@@ -317,21 +317,21 @@ const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData", "cdD
 
 <style lang="scss" scoped>
 
-.file-item{
+.file-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
-  font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC',
-  'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   color: #6b7785;
   padding: 1px 3px;
   cursor: pointer;
-  .file-top{
+
+  .file-top {
     width: 100%;
     height: 17%;
-    
-    .file-operation{
+
+    .file-operation {
       width: 100%;
       height: 100%;
       display: flex;
@@ -339,58 +339,62 @@ const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData", "cdD
       justify-content: space-between;
     }
   }
-  .file-info{
+
+  .file-info {
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 80%;
     width: 100%;
     gap: 2px;
-    &:hover{
+
+    &:hover {
       color: rgb(0, 132, 255);
-      .file-name{
-        span{
+      
+      .file-name {
+        span {
           color: rgb(0, 132, 255);
         }
       }
     }
-    .image{
+
+    .image {
       position: relative;
       width: 72px; 
       height: 72px;
-      img{
+
+      img {
         -webkit-user-drag: none; /* Safari */
         user-drag: none; /* Firefox */
       }
-      .transformed-info{
+
+      .transformed-info {
         position: absolute;
-        bottom: 50%;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: rgba(255, 255, 255, 0.5);
-        color: #ff6200;
+        top: 0%;
+        right: 0;
+        padding: 2px 4px;
+        font-size: 12px;
+        color: #fff;
+        background-color: #f56c6c;
+        border-radius: 4px;
       }
     }
-    
-    .file-name{
-      span{
+
+    .file-name {
+      overflow: hidden; // 将 overflow: hidden; 放到这里
+      span {
         word-break: break-all; 
         text-align: center; 
         align-items: center;
         display: flex;
         justify-content: center;
-        align-items: center;
         font-size: 13px;
         color: #130e0e;
         line-height: 1;
       }
-      overflow: hidden;
     }
-    .date{
+
+    .date {
       font-size: 10px;
     }
   }
@@ -408,29 +412,26 @@ const emit = defineEmits(['addActiveFile','removeActiveFile', "updateData", "cdD
   position: absolute;
   top: 25px;
   left: -30px;
-  width: 55px;
+  width: 65px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.1);
-  border-radius: 5px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  border: 1px solid #ddd;
+  padding: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
   z-index: 10;
-  gap: 3px;
   .operation-item{
+    text-align: center;
     width: 100%;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 5px;
     cursor: pointer;
-    padding: 2px 0;
-    border: 1px solid #e3e3e3;
-    border-radius: 5px;
-    background-color: #ffffff;
-    color: rgb(0, 132, 255);
   }
+}
+.operation-item:hover {
+    background-color: #f5f5f5;
 }
 
 

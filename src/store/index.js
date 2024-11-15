@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
 
+export const useSpaceStore = defineStore('space', () => {
+    const space = reactive({
+        useSpace: 0, // 已使用空间
+        totalSpace: 0, // 总空间
+        noteCount: 0, // 笔记数量
+        fileCount: 0 // 文件数量
+    })
+})
+
 
 export const useUserStore = defineStore('user', () => {
 

@@ -4,7 +4,13 @@ import { createRouter, createWebHistory } from "vue-router"
 export const routes = [
     {
         path: "/",
-        redirect: "/files"
+        component: () => import("@/layout/index.vue"),
+        children: [
+            {
+                path: "",
+                component: () => import("@/views/file/Files.vue")
+            }
+        ]
     },
     {
         path: "/files",
@@ -38,11 +44,18 @@ export const routes = [
     },
     {
         path: "/login",
-        component: () => import("@/views/login/Login.vue")
+        component: () => import("@/views/login/Login.vue") 
     },
     {
         path: "/shareDetail/:shareId",
         component: () => import("@/views/share/ShareDetail.vue")
+    },
+    {
+        
+    },
+    {
+        path: '/:pathMatch(.*)',
+        component: () => import("@/views/NotFound.vue")
     }
 ]
 const router = createRouter({

@@ -223,7 +223,6 @@ watch(() => props.updateDataFlag, () => {
 
 const router = useRouter()
 const route = useRoute()
-// 给当前网站添加后缀 localhost:8080/file/files -> localhost:8080/file/files?path=00
 
 
 const menuIndex = ref(1)
@@ -236,7 +235,72 @@ if(route.query.path){
     fileName : "全部文件"
   })
 }
-const files = reactive([])
+const files = reactive([
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "1", fileName: "图片父亲为分钱分钱分钱而放弃歌曲而跟风抢购", type: 2, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 2, id: "2", fileName: "视频", type: 3, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "3", fileName: "音频", type: 4, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "4", fileName: "文档", type: 5, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "5", fileName: "回收站", type: 6, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "6", fileName: "新建文件夹", type: 7, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "7", fileName: "上传文件", type: 8, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "8", fileName: "上传文件夹", type: 9, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "9", fileName: "分享文件", type: 10, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "10", fileName: "分享文件夹", type: 11, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "11", fileName: "移动文件", type: 12, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "12", fileName: "移动文件夹", type: 13, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "13", fileName: "删除文件", type: 14, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "14", fileName: "删除文件夹", type: 15, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "15", fileName: "还原文件", type: 16, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "16", fileName: "还原文件夹", type: 17, checked: false}, 
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "1", fileName: "图片", type: 2, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "2", fileName: "视频", type: 3, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "3", fileName: "音频", type: 4, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "4", fileName: "文档", type: 5, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "5", fileName: "回收站", type: 6, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "6", fileName: "新建文件夹", type: 7, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "7", fileName: "上传文件", type: 8, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "8", fileName: "上传文件夹", type: 9, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "9", fileName: "分享文件", type: 10, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "10", fileName: "分享文件夹", type: 11, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "11", fileName: "移动文件", type: 12, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "12", fileName: "移动文件夹", type: 13, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "13", fileName: "删除文件", type: 14, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "14", fileName: "删除文件夹", type: 15, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "15", fileName: "还原文件", type: 16, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "16", fileName: "还原文件夹", type: 17, checked: false}, 
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "1", fileName: "图片", type: 2, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "2", fileName: "视频", type: 3, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "3", fileName: "音频", type: 4, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "4", fileName: "文档", type: 5, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "5", fileName: "回收站", type: 6, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "6", fileName: "新建文件夹", type: 7, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "7", fileName: "上传文件", type: 8, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "8", fileName: "上传文件夹", type: 9, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "9", fileName: "分享文件", type: 10, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "10", fileName: "分享文件夹", type: 11, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "11", fileName: "移动文件", type: 12, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "12", fileName: "移动文件夹", type: 13, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "13", fileName: "删除文件", type: 14, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "14", fileName: "删除文件夹", type: 15, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "15", fileName: "还原文件", type: 16, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "16", fileName: "还原文件夹", type: 17, checked: false}, 
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "1", fileName: "图片", type: 2, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "2", fileName: "视频", type: 3, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "3", fileName: "音频", type: 4, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "4", fileName: "文档", type: 5, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "5", fileName: "回收站", type: 6, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "6", fileName: "新建文件夹", type: 7, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "7", fileName: "上传文件", type: 8, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "8", fileName: "上传文件夹", type: 9, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "9", fileName: "分享文件", type: 10, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "10", fileName: "分享文件夹", type: 11, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "11", fileName: "移动文件", type: 12, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "12", fileName: "移动文件夹", type: 13, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "13", fileName: "删除文件", type: 14, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "14", fileName: "删除文件夹", type: 15, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "15", fileName: "还原文件", type: 16, checked: false},
+  {size: 123, updateTime: "2022-03-15 10:00:00",createTime: "2022-03-15 10:00:00", uid:123, pid: 1, status: 0, transformed: 0, id: "16", fileName: "还原文件夹", type: 17, checked: false}, 
+])
 
 const getFileLength = computed(() => {
   return files.length
@@ -399,7 +463,6 @@ const cancelShare = () => {
 const handleShare = (formData) => {
   const fids = shareList.map(item => item.id)
   formData.fids = fids
-  formData.type = 0
   postCreateShare(formData).then(res => {
     if(res.code == 200){
       ElMessage.success('文件分享成功')
@@ -447,32 +510,35 @@ const recoveryFile = () => {
 }
 
 
-
-
+let removeTask = null // 防止连续点击删除按钮时，触发多次删除请求
 const RemoveFile = () => {
-  const ids = fileItemRef.value.activeFiles.map(item => item.id);
-  removeFile(ids).then(res => {
-    if(res.code == 200){
-      ElMessage.success('文件已删除')
-      handleSelect(menuIndex.value)
-      getSpaceInfo().then(res => {
-        if(res.code == 200){
-          useSpace.value = res.data.useSpace
-          totalSpace.value = res.data.totalSpace
-          percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
-        }else{
-          ElMessage.error(res.msg)
-        }
-      }).catch(err => {
-        console.log(err);
-      })
-    }else{
-      ElMessage.error(res.msg)
-    }
-  }).catch(err => {
-    ElMessage.error('文件删除失败')
-    console.log(err)
-  })
+  removeTask = setTimeout(() => {
+    const ids = fileItemRef.value.activeFiles.map(item => item.id);
+    removeFile(ids).then(res => {
+      if(res.code == 200){
+        ElMessage.success('文件已删除')
+        handleSelect(menuIndex.value)
+        getSpaceInfo().then(res => {
+          if(res.code == 200){
+            useSpace.value = res.data.useSpace
+            totalSpace.value = res.data.totalSpace
+            percentage.value = Number(((useSpace.value / totalSpace.value) * 100).toFixed(2))
+          }else{
+            ElMessage.error(res.msg)
+          }
+        }).catch(err => {
+          console.log(err);
+        })
+      }else{
+        ElMessage.error(res.msg)
+      }
+      removeTask = null
+    }).catch(err => {
+      ElMessage.error('文件删除失败')
+      console.log(err)
+      removeTask = null
+    })
+  }, 1000)
 }
 
 const emit = defineEmits(['addFile'])

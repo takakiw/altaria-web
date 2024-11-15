@@ -20,7 +20,9 @@
     "element-plus": "^2.8.4",
     "i": "^0.3.7",
     "json-bigint": "^1.0.0",
+    "md-editor-v3": "^5.0.0",
     "pinia": "^2.2.2",
+    "sanitize-html": "^2.13.1",
     "spark-md5": "^3.0.2",
     "vue": "^3.4.37",
     "vue-demi": "^0.14.10",
@@ -32,6 +34,7 @@
     "sass-embedded": "^1.78.0",
     "scss": "^0.2.4",
     "unplugin-auto-import": "^0.18.3",
+    "unplugin-vue-define-options": "^1.5.2",
     "vite": "^5.4.8"
   }
 }

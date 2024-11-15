@@ -17,6 +17,6 @@
     margin: 0 auto;
     min-width: 1000px;
     display: flex;
-    height: calc(100vh - 75px)
+    height: calc(100vh - 75px);
 }
 </style>
