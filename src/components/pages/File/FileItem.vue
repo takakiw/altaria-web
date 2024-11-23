@@ -53,7 +53,7 @@
             </div>
           </div>
           <div v-if="viewItemType == 1" class="list-view" style="gap: 3px;">
-            <div  v-for="(file, index) in props.files" :file="file" :key="index" style="width: 100%;">
+            <div v-for="(file, index) in props.files" :file="file" :key="index" style="width: 100%;">
                 <FileTable :file="file" 
                   :menuIndex="`${props.menuIndex}`" 
                   :checked="file.checked" 

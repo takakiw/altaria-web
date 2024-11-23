@@ -19,7 +19,7 @@
         </el-menu>
         </div>
        </div>
-       <div class="right-container">
+       <div class="right-container" v-if="menuIndex == '1'">
         <div class="right-top">
           <div class="controls">
             <div class="buttons">
@@ -32,23 +32,32 @@
         </div>
         <el-divider></el-divider>
         <div class="right-content">
-          <div v-if="true">
+          <div>
             <ShareTable ref="shareTableRef" 
             :shareList="shareList"
             @cancelShareList="cancelShareList" />
           </div>
-          <div v-else>
-            <el-empty description="暂无分享">
-            </el-empty>
+        </div>
+       </div>
+       <!-- 公开的笔记 -->
+       <div class="right-container" v-if="menuIndex == '2'">
+        <div class="right-content">
+          <div>
+            <ShareNoteTable
+              :noteList="noteList"
+              @updateNoteList="updateNoteList"
+            />
           </div>
         </div>
        </div>
     </Container>
 </template>
+
   
 <script setup>
 import Container from '@/components/common/Container.vue'
 import ShareTable from '../../components/pages/share/ShareTable.vue';
+import ShareNoteTable from '../../components/pages/share/ShareNoteTable.vue';
 
 import {
   Files, Notebook
@@ -57,16 +66,46 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { delCancelShare, getShareList } from '../../service/share';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { getPublicNoteInfoList } from '../../service/note';
+import { useUserStore } from '../../store';
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const shareTableRef = ref(null) // activeRow-选中的行
 const shareList = reactive([])
+const noteList = reactive([])
 
 const menuIndex = ref(1)
 const handleSelect = (index) => {
+  if(!userStore.isLogin) return 
   menuIndex.value = index
+  if(index == "1"){
+    getShareList().then(res => {
+      if(res.code === 200){
+        shareList.splice(0, shareList.length)
+        shareList.push(...res.data.records)
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+        ElMessage.error('获取分享列表失败')
+    })
+  }
+  else if(index == "2"){
+    getPublicNoteInfoList().then(res => {
+      console.log(res);
+      if(res.code === 200){
+        noteList.splice(0, noteList.length)
+        noteList.push(...res.data)
+      }else{
+        ElMessage.error(res.msg)
+      }
+    }).catch(err => {
+        ElMessage.error('获取公开笔记列表失败')
+    })
+  }
 }
 
 if(localStorage.getItem('token')){
@@ -116,6 +155,10 @@ const cancelShareBatch = () => {
   }).catch(() => {
 
   })
+}
+
+const updateNoteList = () => {
+  
 }
 
 

@@ -1,4 +1,3 @@
-<!-- 用于显示文件信息， 如文件名、大小、创建时间、修改时间等， 以及文件操作按钮， 如下载、删除等, 图标显示文件类型 -->
 <template>
     <div class="file-table">
       <div class="file-row" :class="{'is-active': props.checked}" 

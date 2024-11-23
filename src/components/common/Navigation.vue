@@ -100,17 +100,24 @@ const userStore = useUserStore();
 const route = useRoute();
 const activeIndex = ref("1");
 watch(() => route.path, () => {
+    // 包含首页
+    if(route.path === '/'){
+        activeIndex.value = "0";
+    }
     // 包含files
-    if(route.path.includes('/files')){
+    else if(route.path.includes('/files')){
         activeIndex.value = "1";
     }
     // 包含notes
-    if(route.path.includes('/notes')){
+    else if(route.path.includes('/notes')){
         activeIndex.value = "2";
     }
     // 包含share
-    if(route.path.includes('/share')){
+    else if(route.path.includes('/share')){
         activeIndex.value = "3";
+    }
+    else{
+        activeIndex.value = "-1";
     }
 }, { immediate: true })
 
@@ -192,11 +199,12 @@ $nav-height: 60px;
 
 
 .navigation {
-    min-width: 1000px;
+    min-width: 700px;
     display: flex;
     justify-content: center;
     height: $nav-height;
     margin-bottom: 10px;
+    background-color: #ffffff;
 }
 
 .container {

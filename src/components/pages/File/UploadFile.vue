@@ -176,7 +176,6 @@ const fileUpload = async (uid, chunkIndex) => {
         currentFile.errorMsg = result.msg
         break
       }
-      // todo 上传成功后更新文件信息
       currentFile.chunkIndex = i
       currentFile.uploadSize = end
       currentFile.progress = Math.floor((end / fileSize) * 100)

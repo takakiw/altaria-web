@@ -108,3 +108,7 @@ export const getSignName = (name) => {
     }
     return name.substring(0, 1) + '***'
 }
+
+export const getShareNoteUrl = (id) => {
+    return import.meta.env.VITE_WEB_HOST + "/note/" + id
+}
