@@ -8,7 +8,7 @@ export const routes = [
         children: [
             {
                 path: "",
-                component: () => import("@/views/file/Files.vue")
+                component: () => import("@/views/home/home.vue")
             }
         ]
     },
@@ -28,9 +28,18 @@ export const routes = [
         children: [
             {
                 path: "",
-                component: () => import("@/views/note/index.vue")
+                component: () => import("@/views/note/note.vue")
             }
         ]
+    },{
+        path: "/note/edit",
+        component: () => import("@/views/note/NoteEditor.vue")  
+    },{
+        path: "/note/edit/:noteId",
+        component: () => import("@/views/note/NoteEditor.vue")
+    },{
+        path: "/note/:noteId", 
+        component: () => import("@/views/note/NoteDetail.vue")
     },
     {
         path: "/share",
