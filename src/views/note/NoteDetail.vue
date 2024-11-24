@@ -479,10 +479,10 @@ onMounted(() => {
     gap: 5px;
     font-size: 10px;
     color: rgb(0, 136, 255);
+    margin-right: 20px;
     &:hover{
         cursor: pointer;
     }
-    margin-right: 20px;
 }
 
 .comment-content{

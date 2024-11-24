@@ -99,7 +99,7 @@ export const getExpireTime = (updateTime) => {
 }
 
 export const getShareUrl = (url, password) => {
-    return "链接: " + url + " 密码: " + password
+    return "链接: " + location.origin + "/shareDetail/" + url + " 密码: " + password
 }
 
 export const getSignName = (name) => {
@@ -110,5 +110,6 @@ export const getSignName = (name) => {
 }
 
 export const getShareNoteUrl = (id) => {
-    return import.meta.env.VITE_WEB_HOST + "/note/" + id
+    console.log(location.origin + "/note/" + id);
+    return location.origin + "/note/" + id
 }

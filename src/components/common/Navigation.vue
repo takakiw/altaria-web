@@ -293,11 +293,13 @@ $nav-height: 60px;
   gap: 20px;
 }
 .item-icon{
-  cursor: pointer; 
   width: 25px;
   height: 25px;
   background-color: rgba(239, 239, 239, 0.4);
   border-radius: 50%;
+  &:hover{
+    cursor: pointer;
+  }
 }
 
 .item-left .el-progress--line {

@@ -111,8 +111,10 @@ const closeDialog = (flag) => {
 }
 .avatar-item{
     padding: 10px;
-    cursor: pointer;
     white-space: nowrap;
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 .avatar-info{
@@ -142,7 +144,9 @@ const closeDialog = (flag) => {
 .info-btn{
     font-weight: bold;width: 40%; 
     text-align: center;
-    cursor: pointer;
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 

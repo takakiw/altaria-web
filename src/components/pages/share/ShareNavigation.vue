@@ -75,7 +75,9 @@ $nav-height: 60px;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
     }
-    cursor: pointer;
+    &:hover{
+      cursor: pointer;
+    }
 }
 
 .menu{

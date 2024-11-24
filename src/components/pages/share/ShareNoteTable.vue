@@ -48,7 +48,6 @@ const props = defineProps({
 })
 
 const copyShareUrl = async (row) => {
-    console.log(row);
     await navigator.clipboard.writeText(getShareNoteUrl(row.id))
     ElMessage.success('复制成功')
 }

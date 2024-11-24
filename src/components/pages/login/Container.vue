@@ -12,8 +12,8 @@
           <RegisterForm/>
         </div>
         <div style="width: 200px; display: flex;justify-content: space-between;margin-top: 10px;">
-          <a-link @click="open">{{ !isLogin? '忘记密码？' : '' }}</a-link>
-          <a-link @click="isLogin = !isLogin">{{ !isLogin? '注册' : '登录' }}</a-link>
+          <span class="link" @click="open">{{ !isLogin? '忘记密码？' : '' }}</span>
+          <span class="link" @click="isLogin = !isLogin">{{ !isLogin? '注册' : '登录' }}</span>
           </div>
         </div>
     </div>
@@ -87,6 +87,13 @@ const isLogin = ref(false)
   //box-shadow: rgba(149, 157, 165, 0.2) 0px 10px 24px;
   box-shadow: 5px 5px 10px rgba(74, 78, 67, 0.5);
   gap: 10px;
+}
+
+link {
+  color: rgb(46, 97, 193);
+    &:hover{
+        cursor: pointer;
+    }
 }
 
 </style>

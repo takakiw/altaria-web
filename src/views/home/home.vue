@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="app">
-        <el-scrollbar class="news-feed">
+        <el-scrollbar class="news-feed" v-if="noteList.length">
             <div
             class="news-card"
             v-for="(item, index) in noteList"
@@ -10,10 +10,15 @@
                 <NoteCard :note="item" :userMap="userMap"  />
             </div>
             <div class="load-more">
-                <button v-if="hasMore" @click="loadMore">加载更多</button>
+                <span v-if="hasMore" @click="loadMore" style="cursor: pointer;">加载更多</span>
                 <p v-else>没有更多的新鲜事</p>
             </div>
         </el-scrollbar>
+        <div v-else class="empty">
+            <el-empty description="暂无公开笔记">
+              所有公开的笔记将显示在这里~
+            </el-empty>
+        </div>
         </div>
     </div>
   </template>
@@ -72,6 +77,7 @@ import { getUserInfo } from '../../service/user';
     display: flex;
     flex-direction: column;
     height: calc(100% - 70px);
+    min-width: 1200px;
     width: 100%;
     justify-content: center;
     align-items: center;
@@ -87,6 +93,18 @@ import { getUserInfo } from '../../service/user';
     align-items: center;
     width: 60%;
     padding: 0 80px;
+    box-shadow: var(--el-box-shadow-lighter);
+  }
+
+  .empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    font-family: Inter, 'Helvetica Neue', Helvetica, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+    color: #6b7785;
   }
   
   /* 新闻区域 */
@@ -94,6 +112,7 @@ import { getUserInfo } from '../../service/user';
     flex: 1;
     padding: 10px;
     box-sizing: border-box;
+    width: 100%;
   }
   
   .news-card {
@@ -107,12 +126,14 @@ import { getUserInfo } from '../../service/user';
     min-height: 320px;
     box-shadow: var(--el-box-shadow-lighter);
     box-sizing: border-box;
+    width: 100%;
   }
   
   /* 加载更多 */
   .load-more {
     text-align: center;
     margin: 20px 0;
+    width: 100%;
   }
   
   .load-more button {

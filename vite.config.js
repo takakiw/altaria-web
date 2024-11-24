@@ -6,14 +6,7 @@ import DefineOptions from 'unplugin-vue-define-options/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue({
-    template: {
-      compilerOptions: {
-        // 将 'a-link' 排除为自定义元素
-        isCustomElement: tag => tag === 'a-link'
-      }
-    }
-  }),
+  plugins: [vue(),
   AutoImport({
     imports: ['vue', 'vue-router'],
     eslintrc: {
