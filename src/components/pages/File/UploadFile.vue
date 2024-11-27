@@ -74,7 +74,7 @@ const getFileByUid = (uid) => {
   return uploadFileList.find(item => item.uid === uid); // 使用严格相等
 };
 
-const chunkSize = 1024 * 1024 * 5; // 分片大小4MB
+const chunkSize = 1024 * 1024 * 5; // 分片大小5MB
 
 // 计算文件进度
 async function computeMD5(fileItem) {
