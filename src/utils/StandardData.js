@@ -99,7 +99,7 @@ export const getExpireTime = (updateTime) => {
 }
 
 export const getShareUrl = (url, password) => {
-    return "链接: " + location.origin + "/shareDetail/" + url + " 密码: " + password
+    return "链接: " + window.location.origin + "/shareDetail/" + url + " 密码: " + password
 }
 
 export const getSignName = (name) => {
@@ -110,6 +110,5 @@ export const getSignName = (name) => {
 }
 
 export const getShareNoteUrl = (id) => {
-    console.log(location.origin + "/note/" + id);
-    return location.origin + "/note/" + id
+    return window.location.origin + "/note/" + id
 }
