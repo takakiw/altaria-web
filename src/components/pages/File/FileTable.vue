@@ -46,7 +46,7 @@
   
         <!-- 更多操作 -->
         <div class="file-cell more-cell">
-          <img src="../../../assets/icon-image/more.png" style="width: 20px; height: 20px; cursor: pointer;" @click="showOperation" />
+          <img src="/public/icon-image//more.png" style="width: 20px; height: 20px; cursor: pointer;" @click="showOperation" />
           <div class="file-operation-list" v-if="operationValue && !props.shareMode">
             <div v-if="props.file.type != 0" class="operation-item" @click="downloadFile">下载</div>
             <div class="operation-item" @click="deleteFile">删除</div>

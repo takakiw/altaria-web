@@ -11,15 +11,15 @@ const IconImageEnum = {
 }
 
 const IconURL = {}
-IconURL.DIRECTORY = "/src/assets/icon-image/dir.ico"
-IconURL.IMAGE = '/src/assets/icon-image/image.ico'
-IconURL.VIDEO = '/src/assets/icon-image/video.ico'
-IconURL.AUDIO = '/src/assets/icon-image/audio.ico'
-IconURL.PDF = '/src/assets/icon-image/pdf.ico'
-IconURL.WORD = '/src/assets/icon-image/word.ico'
-IconURL.EXCEL = '/src/assets/icon-image/excel.ico'
-IconURL.TEXT = '/src/assets/icon-image/text.ico'
-IconURL.OTHER = '/src/assets/icon-image/other.ico'
+IconURL.DIRECTORY = "/public/icon-image/dir.ico"
+IconURL.IMAGE = '/public/icon-image/image.ico'
+IconURL.VIDEO = '/public/icon-image/video.ico'
+IconURL.AUDIO = '/public/icon-image/audio.ico'
+IconURL.PDF = '/public/icon-image/pdf.ico'
+IconURL.WORD = '/public/icon-image/word.ico'
+IconURL.EXCEL = '/public/icon-image/excel.ico'
+IconURL.TEXT = '/public/icon-image/text.ico'
+IconURL.OTHER = '/public/icon-image/other.ico'
 
 export const getIconImage = (type) => {
     return IconURL[type] || IconURL.OTHER

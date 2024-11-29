@@ -5,7 +5,7 @@
             <div v-if="errorMsg" class="error-msg">
                 <el-result :sub-title="errorMsg">
                     <template #icon>
-                        <img src="../../assets//icon-image/warning.png" alt="" >
+                        <img src="../../../public/icon-image/warning.png" alt="" >
                     </template>
                 </el-result>
             </div>

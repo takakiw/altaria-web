@@ -10,7 +10,7 @@
           <el-checkbox v-if="props.checked || isShow" @change="logCheckValues" style="width: 16px; height: 16px; margin-top: 0;" :checked="props.checked"></el-checkbox>
         </div>
         <div v-if="props.menuIndex !== '6' && (!shareMode || props.file.type != 0)" class="file-operation-btn" @click="showOperation">
-          <img src="../../../assets/icon-image/more.png" style="width: 25px; height: 25px;"/>
+          <img src="/public/icon-image/more.png" style="width: 25px; height: 25px;"/>
           <div class="file-operation-list" v-if="operationValue && !props.shareMode">
             <div v-if="props.file.type != 0" class="operation-item" @click="downloadFile">下载</div>
             <div class="operation-item" @click="deleteFile">删除</div>

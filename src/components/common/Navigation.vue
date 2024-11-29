@@ -61,7 +61,7 @@
                                         <el-progress :percentage="item.progress" :status="item.status == STATUS.fail.value? 'exception' : ''" :width="25" :stroke-width="2" type="circle" :show-text="false" />
                                     </div>
                                     <div v-else-if="item.status === STATUS.uploading.value && !item.pause" @click="pauseUpload(item.uid)"> <!-- 上传中，显示暂停按钮 -->
-                                        <img src="@/assets/icon-image/stop.png" 
+                                        <img src="/public/icon-image/stop.png" 
                                         alt="" 
                                         class="item-icon">
                                     </div>
