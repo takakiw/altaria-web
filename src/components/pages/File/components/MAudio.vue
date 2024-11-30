@@ -36,13 +36,13 @@ const shareId = route.params.shareId
 
 if(props.shareMode){
   getSharePreviewUrl(shareId, props.file.id).then(res => {
-      audioUrl.value = import.meta.env.VITE_BASE_HOST + res.data
+      audioUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data
   }).catch(err => {
       console.log(err)
   })
 }else{
   getFileSignUrl(props.file.id).then(res => {
-      audioUrl.value = import.meta.env.VITE_BASE_HOST + res.data
+      audioUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data
   }).catch(err => {
       console.log(err)
   })

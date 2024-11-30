@@ -54,7 +54,7 @@ const shareId = route.params.shareId
 if(props.shareMode){
   getSharePreviewUrl(shareId, props.file.id).then(res => {
       if (res.code === 200) {
-          axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
+          axios.get(import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data, { responseType: 'blob' }).then(res => {
               excel.value = res.data
           });
       }
@@ -64,7 +64,7 @@ if(props.shareMode){
 }else{
     getFileSignUrl(props.file.id).then(res => {
     if (res.code === 200) {
-        axios.get(import.meta.env.VITE_BASE_HOST + res.data, { responseType: 'blob' }).then(res => {
+        axios.get(import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data, { responseType: 'blob' }).then(res => {
             excel.value = res.data
         });
     }

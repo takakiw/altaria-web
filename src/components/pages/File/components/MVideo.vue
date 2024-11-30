@@ -30,11 +30,11 @@ const shareId = route.params.shareId;
 const videUrl = ref("");
 if(props.shareMode){
   getSharePreviewUrl(shareId, props.file.id).then(res => {
-    videUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
+    videUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
   });
 }else{
   getFileSignUrl(props.file.id).then(res => {
-    videUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
+    videUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
   });
 }
 

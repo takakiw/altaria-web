@@ -154,13 +154,13 @@ watch(() => props.file.cover, () => {
   if(props.file.cover){
     if(props.shareMode){
       getSharePreviewUrl(shareId, props.file.id, "cover").then(res => {
-        coverUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
+        coverUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
       }).catch(err => {
         console.log(err);
       });
     }else{
       getFileSignUrl(props.file.id, "cover").then(res => {
-        coverUrl.value = import.meta.env.VITE_BASE_HOST + res.data;
+        coverUrl.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
       }).catch(err => {
         console.log(err);
       });
@@ -188,13 +188,13 @@ const handleShow = () => {
       showImage.value = true
       if(props.shareMode){
         getSharePreviewUrl(shareId, props.file.id, "file").then(res => {
-          urlList.value = import.meta.env.VITE_BASE_HOST + res.data;
+          urlList.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
         }).catch(err => {
           console.log(err);
         });
       }else{
         getFileSignUrl(props.file.id).then(res => {
-          urlList.value = import.meta.env.VITE_BASE_HOST + res.data;
+          urlList.value = import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data;
         }).catch(err => {
           console.log(err);
         });
@@ -255,7 +255,7 @@ const logCheckValues = (e) => {
     if(props.shareMode){
       getShareDownloadUrl(shareId, props.file.id).then(res => {
         if(res.code == 200){
-          window.open(import.meta.env.VITE_BASE_HOST + res.data)
+          window.open(import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data)
         }else{
           ElMessage.error(res.msg)
         }
@@ -265,7 +265,7 @@ const logCheckValues = (e) => {
     }else{
       getDownloadSignUrl(props.file.id).then(res => {
         if(res.code == 200){
-          window.open(import.meta.env.VITE_BASE_HOST + res.data)
+          window.open(import.meta.env.VITE_BASE_HOST + import.meta.env.VITE_API_URI + res.data)
         }else{
           ElMessage.error(res.msg)
         }
